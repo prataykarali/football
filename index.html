@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VANTAGE — The World's Football Companion</title>
+  <meta name="description" content="AI-powered second-screen companion for live football. Multilingual commentary, player identification, live quizzes, predictions, and full accessibility." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles/index.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ═══════════════════════════════════════════════════════
+       GLOBAL NAVIGATION
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="site-nav" id="site-nav">
+    <div class="site-nav__container">
+      <div class="site-nav__logo" data-nav="home">
+        <span class="site-nav__logo-icon">⚽</span>
+        <span class="site-nav__logo-text">VANTAGE</span>
+      </div>
+      <div class="site-nav__links" id="nav-links">
+        <a href="#/home" class="site-nav__link site-nav__link--active" data-page="home">Home</a>
+        <a href="#/live" class="site-nav__link site-nav__link--live" data-page="live">Live Match</a>
+        <a href="#/highlights" class="site-nav__link" data-page="highlights">Highlights</a>
+        <a href="#/predictions" class="site-nav__link" data-page="predictions">Predictions</a>
+        <a href="#/standings" class="site-nav__link" data-page="standings">Standings</a>
+        <a href="#/venue" class="site-nav__link" data-page="venue">Venue</a>
+      </div>
+      <div class="site-nav__actions">
+        <div class="theme-switcher" id="theme-switcher">
+          <div class="theme-dot theme-dot--neon" data-theme="neon" title="Neon"></div>
+          <div class="theme-dot theme-dot--cyber" data-theme="cyber" title="Cyber"></div>
+          <div class="theme-dot theme-dot--nightowl" data-theme="nightowl" title="Night Owl"></div>
+          <div class="theme-dot theme-dot--rose" data-theme="rose" title="Rose"></div>
+          <div class="theme-dot theme-dot--purple" data-theme="purple" title="Purple"></div>
+          <div class="theme-dot theme-dot--light" data-theme="light" title="Light"></div>
+        </div>
+        <div class="nav-hamburger" id="nav-hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: HOME
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-home" class="page page--active">
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <div class="hero__bg">
+        <div class="hero__video-fallback"></div>
+        <video class="hero__video" autoplay muted loop playsinline preload="auto" aria-hidden="true"
+          poster="https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=1920&q=80">
+          <source src="/videos/stadium-wide.mp4" type="video/mp4" />
+        </video>
+        <div class="hero__video-tint"></div>
+        <div class="hero__vignette"></div>
+        <div class="hero__particles" id="hero-particles"></div>
+      </div>
+      <div class="hero__grain" aria-hidden="true"></div>
+
+      <div class="hero__content">
+        <div class="hero__badge">
+          <span class="hero__badge-dot"></span>
+          <span>AI Second-Screen Companion</span>
+        </div>
+        <h1 class="hero__title">
+          <span class="hero__title-line">The stadium holds</span>
+          <span class="hero__title-line hero__title-line--accent">80,000</span>
+          <span class="hero__title-line">The world holds</span>
+          <span class="hero__title-line hero__title-line--accent">8 billion</span>
+        </h1>
+        <p class="hero__subtitle">
+          Built for the football fan in Kolkata watching on a phone at 2AM. Multilingual commentary. Player identification. Live quizzes. Predictions. Accessible crowd routing.
+        </p>
+        <div class="hero__cta">
+          <a href="#/live" class="btn btn--primary btn--lg">
+            <span>Enter Live Match</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="#/highlights" class="btn btn--glass btn--lg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Watch Highlights</span>
+          </a>
+        </div>
+        <div class="hero__features stagger-children">
+          <div class="feature-card">
+            <div class="feature-card__icon">🌍</div>
+            <div class="feature-card__title">50+ Languages</div>
+            <div class="feature-card__desc">AI commentary in your language</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">🔍</div>
+            <div class="feature-card__title">Player Zoom</div>
+            <div class="feature-card__desc">Identify anyone on the ball</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">🦉</div>
+            <div class="feature-card__title">Night Owl</div>
+            <div class="feature-card__desc">Stay awake at 2AM</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">🧠</div>
+            <div class="feature-card__title">Crowd Pulse</div>
+            <div class="feature-card__desc">Live predictions & compete</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero__scroll">
+        <div class="hero__scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- Match Spotlight -->
+    <section class="section" id="spotlight-section">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">Featured Match</div>
+          <h2 class="section__title">Match <span class="paint-accent">Spotlight</span></h2>
+        </div>
+        <div class="spotlight-card motion-scale-in" id="spotlight-card">
+          <div class="spotlight-card__bg" style="background-image: url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1920&q=80')"></div>
+          <div class="spotlight-card__content">
+            <div class="spotlight-header">EL CLASICO · LA LIGA · MATCHDAY 32</div>
+            <div class="spotlight-teams">
+              <div class="spotlight-team">
+                <span class="spotlight-team__flag">🇪🇸</span>
+                <span class="spotlight-team__name">BARCELONA</span>
+              </div>
+              <div class="spotlight-vs">VS</div>
+              <div class="spotlight-team">
+                <span class="spotlight-team__name">REAL MADRID</span>
+                <span class="spotlight-team__flag">🇪🇸</span>
+              </div>
+            </div>
+            <div class="spotlight-meta">Camp Nou, Barcelona · 12 JUL 2026 · 08:00 PM</div>
+            <div class="spotlight-countdown" id="spotlight-countdown"></div>
+            <a href="#/live" class="btn btn--primary btn--md">
+              <span>Watch Live</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Upcoming Matches -->
+    <section class="section section--alt">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">Fixtures</div>
+          <h2 class="section__title">Upcoming <span class="paint-accent">Matches</span></h2>
+        </div>
+        <div class="upcoming-grid stagger-children" id="upcoming-matches"></div>
+      </div>
+    </section>
+
+    <!-- Latest News -->
+    <section class="section">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">News</div>
+          <h2 class="section__title">Latest <span class="paint-accent">Updates</span></h2>
+        </div>
+        <div class="news-grid stagger-children" id="news-grid"></div>
+      </div>
+    </section>
+
+    <!-- Fan Zone -->
+    <section class="section section--alt">
+      <div class="page-container">
+        <div class="fan-zone-banner motion-scale-in" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80')">
+          <div class="fan-zone-content">
+            <h2 class="fan-zone-title">JOIN THE FAN ZONE!</h2>
+            <p class="fan-zone-desc">Get exclusive live quizzes, predict moment-by-moment match plays, and sync your high score to the real-time leaderboard.</p>
+            <a href="#/predictions" class="btn btn--primary btn--lg">Join Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand__logo">⚽ VANTAGE</div>
+          <p class="footer-brand__desc">AI-powered second-screen companion for live football. Built for the 8 billion.</p>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col__title">Pages</div>
+          <div class="footer-col__links">
+            <a href="#/home" class="footer-col__link">Home</a>
+            <a href="#/live" class="footer-col__link">Live Match</a>
+            <a href="#/highlights" class="footer-col__link">Highlights</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col__title">Features</div>
+          <div class="footer-col__links">
+            <a href="#/predictions" class="footer-col__link">Predictions</a>
+            <a href="#/standings" class="footer-col__link">Standings</a>
+            <a href="#/venue" class="footer-col__link">Venue</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col__title">Connect</div>
+          <div class="footer-col__links">
+            <a href="#" class="footer-col__link">Twitter</a>
+            <a href="#" class="footer-col__link">Discord</a>
+            <a href="#" class="footer-col__link">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 VANTAGE. All rights reserved.</span>
+        <span>Built with ❤️ for the 8 billion</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: LIVE MATCH
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-live" class="page">
+    <div class="live-page">
+      <div class="live-page__main">
+        <div class="live-score-bar" id="live-score-bar">
+          <div class="live-score-team">
+            <span class="live-score-team__flag">🇦🇷</span>
+            <span class="live-score-team__name">ARGENTINA</span>
+          </div>
+          <div class="live-score__vs">
+            <div class="live-score__numbers" id="live-score-numbers">0 — 0</div>
+            <div class="live-score__minute" id="live-score-minute">KICK OFF</div>
+            <div class="live-score__timer" id="live-score-timer" style="font-size:0.72rem;color:var(--accent-red);font-weight:700;letter-spacing:0.06em;margin-top:2px;"></div>
+          </div>
+          <div class="live-score-team">
+            <span class="live-score-team__flag">🇫🇷</span>
+            <span class="live-score-team__name">FRANCE</span>
+          </div>
+        </div>
+        <div id="video-container" class="video-container"></div>
+        <div class="stream-strip" aria-label="Video stream selector">
+          <button class="stream-chip stream-chip--active" data-stream-src="/videos/live-stream.mp4">Live Stream</button>
+          <button class="stream-chip" data-stream-src="/videos/highlight-goal.mp4">Goal Highlights</button>
+          <button class="stream-chip" data-stream-src="/videos/football-skills-1.mp4">Skills Cam</button>
+          <button class="stream-chip" data-stream-src="/videos/stadium-crowd.mp4">Crowd Cam</button>
+        </div>
+        <div class="quick-actions">
+          <button id="btn-identify-player" class="action-btn action-btn--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Identify Player</span>
+          </button>
+          <button id="btn-catch-up" class="action-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Catch Up</span>
+          </button>
+          <select id="speed-select" class="setting-select" style="width:auto;padding:6px 10px;font-size:0.78rem;margin-left:auto;">
+            <option value="1">1× Real-time</option>
+            <option value="5">5× Fast</option>
+            <option value="10" selected>10× Demo</option>
+            <option value="30">30× Turbo</option>
+          </select>
+        </div>
+      </div>
+      <div class="live-page__sidebar">
+        <div id="api-status-banner" class="api-status-card"></div>
+        <div class="commentary-panel">
+          <div class="commentary-header">
+            <span>🎙️ AI Commentary</span>
+            <select id="caption-language" class="setting-select" style="width:auto;padding:3px 8px;font-size:0.72rem;">
+              <option value="en">English</option>
+              <option value="es">Espanol</option>
+              <option value="fr">Francais</option>
+              <option value="de">Deutsch</option>
+              <option value="pt">Portugues</option>
+              <option value="ar">العربية</option>
+              <option value="hi">हिन्दी</option>
+              <option value="zh">中文</option>
+              <option value="ja">日本語</option>
+              <option value="ko">한국어</option>
+            </select>
+          </div>
+          <div class="commentary-feed" id="commentary-feed"></div>
+        </div>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button id="btn-night-owl" class="btn btn--glass btn--sm" style="flex:1;">
+            🦉 Night Owl
+          </button>
+          <button id="btn-export-proof" class="btn btn--glass btn--sm" style="flex:1;">
+            🔐 Export Proof
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="player-card-container" class="player-card-overlay" hidden></div>
+    <aside id="settings-container" class="settings-overlay" hidden></aside>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: HIGHLIGHTS
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-highlights" class="page">
+    <section class="section">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">Match Replays</div>
+          <h2 class="section__title">Match <span class="paint-accent">Highlights</span></h2>
+          <p class="section__subtitle">Relive every goal, save, and key moment from the biggest matches.</p>
+        </div>
+        <div class="highlights-grid stagger-children" id="highlights-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: PREDICTIONS
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-predictions" class="page">
+    <section class="section">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">Fan Engagement</div>
+          <h2 class="section__title">Match <span class="paint-accent">Predictions</span></h2>
+          <p class="section__subtitle">Predict match outcomes, answer quiz questions, and compete on the leaderboard.</p>
+        </div>
+        <div class="predictions-layout">
+          <div id="predictions-main"></div>
+          <div id="predictions-sidebar"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: STANDINGS
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-standings" class="page">
+    <section class="section">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">League Tables</div>
+          <h2 class="section__title">Points <span class="paint-accent">Table</span></h2>
+          <p class="section__subtitle">Live league standings, top scorers, and team statistics.</p>
+        </div>
+        <div class="standings-layout">
+          <div id="standings-table-container"></div>
+          <div id="standings-sidebar"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: VENUE & TRANSPORT
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-venue" class="page">
+    <section class="section">
+      <div class="page-container">
+        <div class="section__header motion-fade-in">
+          <div class="section__label">Stadium Info</div>
+          <h2 class="section__title">Venue & <span class="paint-accent">Transport</span></h2>
+          <p class="section__subtitle">Stadium details, gate information, transport routes, and accessible navigation.</p>
+        </div>
+        <div id="venue-hero-container"></div>
+        <div class="venue-layout" id="venue-content"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
