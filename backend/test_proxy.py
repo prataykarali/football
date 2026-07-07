@@ -57,7 +57,6 @@ class TestSecurityHeaders:
 
     EXPECTED_HEADERS = {
         "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
         "Strict-Transport-Security": "max-age=31536000",
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "Permissions-Policy": "camera=(), microphone=(), geolocation=(self)",
@@ -65,6 +64,13 @@ class TestSecurityHeaders:
         "X-XSS-Protection": "0",
     }
     CSP_PREFIX = "default-src 'self'"
+
+    def test_allows_hf_iframe_embedding(self, client):
+        """CSP must let Hugging Face Spaces frame the app (no X-Frame-Options: DENY)."""
+        resp = client.get("/api/health")
+        assert resp.headers.get("X-Frame-Options") is None
+        assert "frame-ancestors" in resp.headers.get("Content-Security-Policy", "")
+        assert "https://www.youtube.com" in resp.headers.get("Content-Security-Policy", "")
 
     def test_headers_on_health(self, client):
         """Health endpoint carries all security headers."""
