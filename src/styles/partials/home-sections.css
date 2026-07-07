@@ -1,0 +1,335 @@
+/* ─── 8. SECTIONS ──────────────────────────────────────────── */
+.section {
+  padding: var(--space-4xl) 0;
+  position: relative;
+}
+
+.section--alt { background: var(--section-alt-bg); }
+
+.section__header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.section__label {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-green);
+  margin-bottom: var(--space-sm);
+}
+
+.section__title {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.section__subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: var(--space-md) auto 0;
+  line-height: 1.6;
+}
+
+.paint-accent {
+  color: var(--accent-green);
+  text-shadow: 0 0 20px var(--accent-green-glow);
+}
+
+/* ─── 9. MATCH SPOTLIGHT ───────────────────────────────────── */
+.spotlight-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.4s var(--ease-out);
+}
+
+.spotlight-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent-green);
+  box-shadow: 0 30px 60px rgba(0, 255, 102, 0.08);
+}
+
+.spotlight-card__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transition: transform 0.8s var(--ease-out);
+}
+
+.spotlight-card:hover .spotlight-card__bg { transform: scale(1.04); }
+
+.spotlight-card__content {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-3xl);
+  width: 100%;
+}
+
+.spotlight-header {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  color: var(--accent-green);
+  margin-bottom: var(--space-lg);
+  text-shadow: 0 0 12px var(--accent-green-glow);
+}
+
+.spotlight-teams {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.spotlight-team {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.spotlight-team__flag { font-size: 2.8rem; }
+
+.spotlight-team__name {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.spotlight-vs {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.spotlight-meta {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2xl);
+  font-weight: 500;
+}
+
+.spotlight-countdown {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--accent-amber);
+  margin-bottom: var(--space-lg);
+}
+
+/* ─── 10. UPCOMING MATCHES ─────────────────────────────────── */
+.upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-xl);
+}
+
+.upcoming-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  transition: all 0.3s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.upcoming-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-green), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.upcoming-card:hover::before { opacity: 1; }
+
+.upcoming-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-green);
+  background: var(--bg-glass-hover);
+}
+
+.upcoming-card__league {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-green);
+}
+
+.upcoming-card__teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.upcoming-card__team {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.vs-badge {
+  font-size: 0.8rem;
+  font-family: var(--font-heading);
+  font-style: italic;
+  padding: 3px 10px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.upcoming-card__time {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.upcoming-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.upcoming-card__status--live {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--accent-red);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.upcoming-card__status--soon {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--accent-amber);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* ─── 11. NEWS CARDS ───────────────────────────────────────── */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--space-2xl);
+}
+
+@media (max-width: 600px) { .news-grid { grid-template-columns: 1fr; } }
+
+.news-card {
+  background: var(--card-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s var(--ease-out);
+}
+
+.news-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-green);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.news-card__img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.news-card:hover .news-card__img { transform: scale(1.03); }
+
+.news-card__body { padding: var(--space-2xl); }
+
+.news-card__title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: var(--space-sm);
+}
+
+.news-card__desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── 12. FAN ZONE ─────────────────────────────────────────── */
+.fan-zone-banner {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  padding: var(--space-4xl);
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg);
+  transition: border-color 0.4s var(--ease-out);
+  position: relative;
+}
+
+.fan-zone-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.7));
+}
+
+.fan-zone-banner:hover { border-color: var(--accent-green); }
+
+.fan-zone-content {
+  position: relative;
+  z-index: 1;
+  max-width: 650px;
+}
+
+.fan-zone-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+  text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.fan-zone-desc {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-2xl);
+}
