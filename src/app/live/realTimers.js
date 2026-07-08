@@ -1,4 +1,5 @@
 import { Toast } from '../../components/Toast.js';
+import { VIDEO_BASE } from '../../utils/media.js';
 import { SECOND_MS } from '../constants.js';
 
 export const realTimerMethods = {
@@ -33,7 +34,7 @@ export const realTimerMethods = {
           flag: this._countryFlag(match.awayTeam.abbreviation),
         },
         venue: match.venue,
-        streamSrc: '/videos/football-goal-1.mp4',
+        streamSrc: `${VIDEO_BASE}/football-goal-1.mp4`,
       };
       this.matchFeed?.setTeams?.({
         homeCode: match.homeTeam.abbreviation,
@@ -51,7 +52,7 @@ export const realTimerMethods = {
 
         // Render live match video stream
         if (this.videoPlayer) {
-          this.videoPlayer.render('/videos/football-goal-1.mp4', {
+          this.videoPlayer.render(`${VIDEO_BASE}/football-goal-1.mp4`, {
             autoplay: true, loop: true, muted: true, controls: true, overlay: true, isLive: true
           });
           const homeFlag = this._countryFlag(match.homeTeam.abbreviation);
@@ -334,7 +335,7 @@ export const realTimerMethods = {
     if (minuteEl) minuteEl.textContent = 'KICKOFF IN';
 
     if (this.videoPlayer) {
-      this.videoPlayer.render('/videos/stage2.mp4', {
+      this.videoPlayer.render(`${VIDEO_BASE}/stage2.mp4`, {
         autoplay: true, loop: true, muted: true, controls: true, overlay: true, isLive: false
       });
       const homeFlag = this._countryFlag(match.homeTeam.abbreviation);

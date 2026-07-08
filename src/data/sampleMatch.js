@@ -1,3 +1,5 @@
+import { VIDEO_BASE } from '../utils/media.js';
+
 export const MATCH_INFO = {
   id: 'arg-fra-wc2022-final',
   homeTeam: { name: 'Argentina', code: 'ARG', flag: '🇦🇷' },
@@ -30,13 +32,13 @@ export const FEATURED_MATCH = {
   homeTeam: { name: 'Argentina', code: 'ARG', flag: '🇦🇷' },
   awayTeam: { name: 'Egypt', code: 'EGY', flag: '🇪🇬' },
   venue: 'Mercedes-Benz Stadium, Atlanta',
-  // Default feed is a local demo clip so the "live" player ALWAYS plays and can be
-  // pixel-scanned by Gemini Vision. A real broadcast embed (e.g. FIFA on YouTube) is
+  // Default feed is a release-hosted demo clip so the "live" player always plays.
+  // A real broadcast embed (e.g. FIFA on YouTube) is
   // routinely geo/embed-blocked ("Video unavailable") and, being a cross-origin
   // iframe, can't be scanned. Users can still paste a working stream via the
   // "Embed YouTube Link" control, which sets liveStreamId at runtime.
   liveStreamId: null,
-  streamSrc: '/videos/football-goal-1.mp4',
+  streamSrc: `${VIDEO_BASE}/football-goal-1.mp4`,
   kickoffTime: null,          // absolute override; null → use offset below
   kickoffOffsetMinutes: 3,    // real-time countdown length from first visit
   displayDate: 'TODAY',

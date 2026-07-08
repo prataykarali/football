@@ -1,7 +1,7 @@
 /**
  * Highlights Panel — shows key match moments with video thumbnails
  */
-import { resolveVideo } from '../utils/media.js';
+import { IMAGE_BASE, resolveVideo, VIDEO_BASE } from '../utils/media.js';
 
 export class HighlightsPanel {
   constructor(containerEl) {
@@ -18,20 +18,20 @@ export class HighlightsPanel {
     );
 
     const videoThumbs = {
-      goal: '/videos/highlight-goal.mp4',
-      penalty_awarded: '/videos/football-goal-2.mp4',
-      red_card: '/videos/match-action.mp4',
-      shot: '/videos/highlight-shot.mp4',
-      substitution: '/videos/football-match-2.mp4',
-      foul: '/videos/football-match-1.mp4',
+      goal: `${VIDEO_BASE}/highlight-goal.mp4`,
+      penalty_awarded: `${VIDEO_BASE}/football-goal-2.mp4`,
+      red_card: `${VIDEO_BASE}/match-action.mp4`,
+      shot: `${VIDEO_BASE}/highlight-shot.mp4`,
+      substitution: `${VIDEO_BASE}/football-match-2.mp4`,
+      foul: `${VIDEO_BASE}/football-match-1.mp4`,
     };
 
     const imageThumbs = {
-      goal: '/images/crowd-fans.jpg',
-      penalty_awarded: '/images/stadium-night.jpg',
-      red_card: '/images/match-action.jpg',
-      shot: '/images/pitch-green.jpg',
-      substitution: '/images/stadium-aerial.jpg',
+      goal: `${IMAGE_BASE}/crowd-fans.jpg`,
+      penalty_awarded: `${IMAGE_BASE}/stadium-night.jpg`,
+      red_card: `${IMAGE_BASE}/match-action.jpg`,
+      shot: `${IMAGE_BASE}/pitch-green.jpg`,
+      substitution: `${IMAGE_BASE}/stadium-aerial.jpg`,
     };
 
     this.containerEl.innerHTML = `
@@ -43,8 +43,8 @@ export class HighlightsPanel {
           <div class="highlight-card highlight-card--${ev.type}" role="listitem" tabindex="0" data-event-id="${ev.id}" aria-label="${ev.minute} minute: ${ev.details}">
             <div class="highlight-card__thumb">
               <video class="highlight-video-thumb" muted loop preload="none" playsinline aria-hidden="true"
-                data-src="${videoThumbs[ev.type] || '/videos/match-action.mp4'}"
-                poster="${imageThumbs[ev.type] || '/images/pitch-green.jpg'}">
+                data-src="${videoThumbs[ev.type] || `${VIDEO_BASE}/match-action.mp4`}"
+                poster="${imageThumbs[ev.type] || `${IMAGE_BASE}/pitch-green.jpg`}">
               </video>
             </div>
             <div class="highlight-card__body">

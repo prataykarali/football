@@ -16,5 +16,3 @@ backend/.pytest_cache
 *.log
 .env
 backend/.env
-# Unused loose videos at repo root (app uses public/videos/)
-/football-*.mp4

@@ -39,7 +39,7 @@ runtime context:
 
 | Context signal | Decision the assistant makes |
 | --- | --- |
-| Broadcast embed is geo/embed-blocked (e.g. FIFA on YouTube → *"Video unavailable"*) | Fall back to a **local demo clip** so the "live" player always plays, and so it can be pixel-scanned by AI Vision |
+| Broadcast embed is geo/embed-blocked (e.g. FIFA on YouTube → *"Video unavailable"*) | Fall back to a **release-hosted demo clip** so the "live" player always plays |
 | Gemini quota exhausted / no API key | Swap AI commentary, quizzes and player-ID for **deterministic local fallbacks** — the app stays 100% functional on the free tier |
 | ESPN live feed unreachable | Serve **realistic hardcoded** standings / fixtures instead of erroring |
 | Time-to-kickoff | Venue guide ranks travel options (rideshare / transit / park-and-walk) by **minutes remaining**, not a fixed list |
@@ -66,34 +66,25 @@ forward to the next-best experience.
   API on port **7860** (same origin).
 
 ### AI Vision player-ID (the "showcase the vision" flow)
-1. The default live feed is a small, **same-origin** demo clip
-   (`public/videos/football-goal-1.mp4`).
-2. Tapping **Identify Player** captures the current video frame to a `<canvas>`
-   (`_captureVideoFrame`) and POSTs it to `/api/vision`.
+1. The default live feed is a small demo clip hosted by the separate
+   `vantage-football` media release.
+2. Tapping **Identify Player** uses the best available live context and frame
+   capture when the browser permits it, then POSTs to `/api/vision`.
 3. The backend asks **Gemini Vision** to identify the player; the card shows
    name, position, nationality, live stats and a fun fact.
 4. If the frame can't be captured (cross-origin stream) or Gemini is unavailable,
    it falls back to identifying the player from the live event feed — clearly
    labelled so the UI never overstates confidence.
 
-Same-origin matters: a cross-origin `<video>` **taints the canvas** and blocks
-frame capture, which is why the demo clip is kept in-repo while the heavier
-videos are hosted off-repo (below).
-
-### Media hosting (keeping the repo < 10 MB)
-Bulky match/stadium/crowd videos are **not committed**. They are hosted as
-**GitHub Release assets** (a free CDN) and resolved at runtime by
+### Media hosting
+Images and videos are **not committed** in this repo. They are hosted as
+**GitHub Release assets** in the separate `vantage-football` repo and resolved at runtime by
 `src/utils/media.js`:
 
-- `resolveVideo('/videos/<name>.mp4')` maps a **whitelisted** path to its release
-  URL — the strict `/videos/*.mp4` whitelist is preserved, so no caller can be
-  tricked into loading an arbitrary origin.
-- The one demo clip used by AI Vision resolves **same-origin** so canvas capture
-  works.
+- `resolveVideo(...)` maps known video asset references to release URLs.
+- `resolveImage(...)` maps known image asset references to release URLs.
 
-Unused images were pruned (stadium art loads from Wikimedia) and the rest
-compressed. Net result: source repo well under the 10 MB limit, single clean
-commit, single branch.
+Net result: source repo has no checked-in image/video assets.
 
 ## 4. Running locally
 
@@ -117,9 +108,8 @@ app is fully usable.
 - **Free-tier AI.** Gemini is assumed to be on the free quota, so AI is treated as
   best-effort with deterministic fallbacks — never a hard dependency.
 - **World Cup 2026 context** for sample teams, venues and fixtures.
-- **GitHub Release CDN** for video assets: the release tag `media-v1` on this repo
-  hosts them. Playback works from any origin; only the vision demo clip needs to
-  be same-origin.
+- **GitHub Release CDN** for media assets: the release tag `media-v1` in the
+  separate `vantage-football` repo hosts them.
 
 ## Tech
 Vanilla JS · Vite · Flask · Google Gemini · ESPN API · Docker · Vitest

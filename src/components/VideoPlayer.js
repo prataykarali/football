@@ -2,7 +2,7 @@
  * Video Player Component — plays match stream or highlight clips
  * Supports overlay for Player ID, picture-in-picture, and keyboard shortcuts.
  */
-import { resolveVideo, VIDEO_BASE } from '../utils/media.js';
+import { IMAGE_BASE, resolveVideo, VIDEO_BASE } from '../utils/media.js';
 
 export class VideoPlayer {
   constructor(containerEl) {
@@ -109,7 +109,7 @@ export class VideoPlayer {
             playsinline
             preload="metadata"
             aria-label="Match footage"
-            poster="/images/stage3.jpeg"
+            poster="${IMAGE_BASE}/stage3.jpeg"
           >
             <source src="${safeSrc}" type="video/mp4" />
             Your browser does not support video.
@@ -167,7 +167,7 @@ export class VideoPlayer {
           if (!fallback) {
             fallback = document.createElement('div');
             fallback.className = 'video-fallback';
-            fallback.style.cssText = 'position:absolute;inset:0;background:url(/images/stage3.jpeg) center/cover;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;';
+            fallback.style.cssText = `position:absolute;inset:0;background:url(${IMAGE_BASE}/stage3.jpeg) center/cover;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;`;
             fallback.innerHTML = '<div style="background:rgba(0,0,0,0.7);padding:16px 24px;border-radius:12px;font-family:var(--font-heading);font-size:1.2rem;color:#fff;">⚽ LIVE MATCH FEED</div><div style="color:var(--text-muted);font-size:0.8rem;">Stream connecting...</div>';
             this.videoEl.parentElement.appendChild(fallback);
           }
@@ -331,9 +331,9 @@ export class VideoPlayer {
     if (text.includes('twitch.tv')) return text;
     // Already-resolved release URLs (e.g. a re-render) pass through unchanged.
     if (text.startsWith(`${VIDEO_BASE}/`) && /\.mp4($|\?)/i.test(text)) return text;
-    // Otherwise only accept whitelisted /videos/*.mp4 paths; anything else falls
-    // back to the local, always-playable demo clip.
-    return resolveVideo(text) || '/videos/football-goal-1.mp4';
+    // Otherwise only accept known media asset references; anything else falls
+    // back to the release-hosted demo clip.
+    return resolveVideo(text) || `${VIDEO_BASE}/football-goal-1.mp4`;
   }
 
   destroy() {

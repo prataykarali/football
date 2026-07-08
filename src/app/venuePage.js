@@ -33,7 +33,7 @@ export const venuePageMethods = {
           ${isVideo
             ? `<video class="venue-hero__img" autoplay muted loop playsinline src="${bgImg}" style="width:100%;height:100%;object-fit:cover;"></video>`
             : `<img class="venue-hero__img" src="${bgImg}" alt="${venue.name}" loading="lazy"
-                 onerror="this.onerror=null;this.src='/images/stadium-aerial.jpg';" />`
+                 onerror="this.onerror=null;this.src='${venueImages['metlife-stadium']}';" />`
           }
           <div class="venue-hero__overlay">
             <div class="venue-hero__name">${venue.name}</div>
