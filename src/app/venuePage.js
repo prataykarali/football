@@ -68,6 +68,15 @@ export const venuePageMethods = {
 
       const routes = transportRoutes[venue.id] || transportRoutes['metlife-stadium'];
       const schedule = venueSchedule[venue.id] || [{ match: 'No upcoming matches', date: 'N/A', teams: 'N/A' }];
+      const tripPlan = this.venueMapService.buildTripPlan(null, venue.id);
+      const greenImpact = this.sustainabilityService?.getTransportImpact(tripPlan.routeDistanceKm, 'transit') || {
+        co2Kg: 0,
+        savingKg: 0,
+        label: 'Transit',
+      };
+      const greenPhoneHours = Math.round(greenImpact.savingKg * 82);
+      const greenTip = this.sustainabilityService?.getAIEcoTip(tripPlan.routeDistanceKm, 'transit')
+        || 'Choose public transit, refill water, and sort waste to lower matchday impact.';
 
       setHTML(contentContainer, `
         <div>
@@ -246,7 +255,12 @@ export const venuePageMethods = {
                 <span>🚇</span> Travel Green &amp; Save Carbon
               </div>
               <div style="font-size:0.78rem; line-height:1.4; color:var(--text-secondary);">
-                Take NJ Transit Rail or Shuttle Bus to save up to <strong>3.8 kg of CO2</strong> compared to driving a personal car. Equivalent to powering a smartphone for 312 hours!
+                ${escapeHTML(greenImpact.label)} to ${safeVenueName} emits about <strong>${Number(greenImpact.co2Kg).toFixed(2)} kg CO2</strong>
+                and saves <strong>${Number(greenImpact.savingKg).toFixed(2)} kg CO2</strong> versus driving.
+                ${greenPhoneHours > 0 ? `Equivalent to powering a smartphone for ${greenPhoneHours} hours.` : ''}
+              </div>
+              <div style="font-size:0.72rem; line-height:1.4; color:var(--text-muted); margin-top:6px;">
+                ${escapeHTML(greenTip)}
               </div>
             </div>
 

@@ -122,7 +122,9 @@ export const coreMethods = {
     const switcher = document.getElementById('theme-switcher');
     if (!switcher) return;
 
-    const savedTheme = localStorage.getItem('vantage_theme') || 'neon';
+    const savedTheme = typeof localStorage === 'undefined'
+      ? 'neon'
+      : localStorage.getItem('vantage_theme') || 'neon';
     this._applyTheme(savedTheme);
 
     const dots = switcher.querySelectorAll('.theme-dot');
@@ -140,7 +142,9 @@ export const coreMethods = {
         });
         dot.classList.add('theme-dot--active');
         dot.setAttribute('aria-checked', 'true');
-        localStorage.setItem('vantage_theme', theme);
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('vantage_theme', theme);
+        }
         Toast.show({ message: `Theme: ${theme}`, type: 'info', duration: 2000 });
       };
 
@@ -186,10 +190,12 @@ export const coreMethods = {
 
   _applySettings(next = {}) {
     this.settings = { ...this.settings, ...next };
-    try {
-      localStorage.setItem('vantage_settings', JSON.stringify(this.settings));
-    } catch (error) {
-      console.warn('Settings could not be persisted.', error);
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('vantage_settings', JSON.stringify(this.settings));
+      } catch (error) {
+        console.warn('Settings could not be persisted.', error);
+      }
     }
 
     const body = document.body;
@@ -351,12 +357,20 @@ export const coreMethods = {
   // ─── Settings Persistence ───────────────────────────────
 
   _loadSettings() {
+    if (typeof localStorage === 'undefined') {
+      return this._defaultSettings();
+    }
+
     try {
       const saved = localStorage.getItem('vantage_settings');
       if (saved) return JSON.parse(saved);
     } catch (error) {
       console.warn('Saved settings could not be read; using defaults.', error);
     }
+    return this._defaultSettings();
+  },
+
+  _defaultSettings() {
     return {
       language: 'en',
       pace: 'medium',

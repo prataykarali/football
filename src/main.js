@@ -29,10 +29,6 @@ function setupAccessibility() {
 }
 
 async function boot() {
-  console.log('%c⚽ VANTAGE %c AI Second-Screen Companion',
-    'background: #00FF66; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 14px;',
-    'color: #8892b0; font-size: 12px;');
-
   checkBrowserSupport();
   setupAccessibility();
 

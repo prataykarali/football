@@ -40,7 +40,7 @@ export class CrowdPulseService {
         }
       }
     } catch (e) {
-      console.warn('Real-time database sync failed, using offline mock data');
+      this._warnOfflineSync('Real-time database sync failed, using offline mock data');
     }
   }
 
@@ -203,7 +203,13 @@ export class CrowdPulseService {
         })
       });
     } catch (e) {
-      console.warn('Real-time database sync failed, using local fallback');
+      this._warnOfflineSync('Real-time database sync failed, using local fallback');
+    }
+  }
+
+  _warnOfflineSync(message) {
+    if (!import.meta.env?.TEST) {
+      console.warn(message);
     }
   }
 
