@@ -1,0 +1,10 @@
+@import './partials/base.css';
+@import './partials/layout-home.css';
+@import './partials/home-sections.css';
+@import './partials/live-core.css';
+@import './partials/live-actions.css';
+@import './partials/highlights-predictions.css';
+@import './partials/standings-venue.css';
+@import './partials/components-footer.css';
+@import './partials/motion-themes.css';
+@import './partials/responsive-polish.css';

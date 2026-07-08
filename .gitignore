@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Build output
+dist/
+*.local
+
+# Environment
+.env
+backend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Vite
+.vite/
+
+# Unused loose video artifacts at repo root (app uses public/videos/)
+/football-*.mp4
+
+# Python virtualenv (never commit)
+backend/venv/
+
+# Claude Code local settings
+.claude/

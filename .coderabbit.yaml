@@ -1,0 +1,19 @@
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  auto_review:
+    enabled: true
+  path_filters:
+    - "!**/dist/**"
+    - "!**/*.lock"
+    - "!**/vendor/**"
+    - "!**/node_modules/**"
+  path_instructions:
+    - path: "backend/**"
+      instructions: "Flag any unsanitized user input, missing rate limits, or secrets in code. Ensure all endpoints validate input schemas."
+    - path: "src/services/**Safety**"
+      instructions: "Verify all external inputs are validated and outputs are clamped. Check for XSS vectors."
+    - path: "src/services/matchProof.js"
+      instructions: "Verify cryptographic operations use Web Crypto API, not custom implementations. Check determinism."
+    - path: "src/components/**"
+      instructions: "Check for proper ARIA attributes, keyboard operability, and event listener cleanup."

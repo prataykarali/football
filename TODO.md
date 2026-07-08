@@ -1,0 +1,5 @@
+- [ ] Fix live page not running by wiring real vs demo match-feed behavior
+- [ ] Prevent simulated MatchFeed events from starting when real match data is present
+- [ ] Ensure Night Owl and related controls remain functional (listener wiring)
+- [ ] Ensure Stadium Trip distance/time UI continues to work
+- [ ] Refactor lightly for code clarity where touched (follow “fallow/pony tail” intent: DRY + smaller helpers)

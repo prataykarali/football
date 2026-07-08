@@ -1,0 +1,46 @@
+rules:
+  - id: no-innerhtml
+    pattern: $X.innerHTML = $Y
+    message: "Use textContent or sanitizeForDOM() instead of innerHTML to prevent XSS"
+    languages: [javascript]
+    severity: WARNING
+
+  - id: no-hardcoded-api-key
+    patterns:
+      - pattern: |
+          "AIza..."
+      - pattern: |
+          "sk-..."
+      - pattern-regex: "(?i)(api[_-]?key|secret|token)\\s*[:=]\\s*['\"][a-zA-Z0-9]{16,}['\"]"
+    message: "Potential hardcoded API key detected. Use environment variables instead."
+    languages: [javascript, python]
+    severity: ERROR
+
+  - id: no-eval
+    pattern: eval(...)
+    message: "eval() is prohibited — it enables arbitrary code execution"
+    languages: [javascript]
+    severity: ERROR
+
+  - id: no-document-write
+    pattern: document.write(...)
+    message: "document.write() is prohibited — use DOM APIs instead"
+    languages: [javascript]
+    severity: WARNING
+
+  - id: require-input-validation
+    pattern: |
+      @app.route(...)
+      def $FUNC(...):
+        ...
+        $DATA = request.json
+        ...
+    message: "Ensure request.json data is validated (schema check) before use"
+    languages: [python]
+    severity: INFO
+
+  - id: no-dangerously-set-innerhtml
+    pattern: dangerouslySetInnerHTML={{__html: $X}}
+    message: "Avoid dangerouslySetInnerHTML — use sanitizeForDOM() or a safe rendering approach"
+    languages: [javascript]
+    severity: WARNING
