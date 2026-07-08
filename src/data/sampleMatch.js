@@ -1,4 +1,4 @@
-import { LIVE_STREAM_YOUTUBE_ID } from './highlights.js';
+import { VIDEO_BASE } from '../utils/media.js';
 
 export const MATCH_INFO = {
   id: 'arg-fra-wc2022-final',
@@ -32,10 +32,13 @@ export const FEATURED_MATCH = {
   homeTeam: { name: 'Argentina', code: 'ARG', flag: '🇦🇷' },
   awayTeam: { name: 'Egypt', code: 'EGY', flag: '🇪🇬' },
   venue: 'Mercedes-Benz Stadium, Atlanta',
-  // Live stream: official YouTube embed (swap for the broadcaster's live video
-  // ID at match time). `streamSrc` is a local fallback if the embed is blocked.
-  liveStreamId: LIVE_STREAM_YOUTUBE_ID,
-  streamSrc: '/videos/live-stream.mp4',
+  // Default feed is a release-hosted demo clip so the "live" player always plays.
+  // A real broadcast embed (e.g. FIFA on YouTube) is
+  // routinely geo/embed-blocked ("Video unavailable") and, being a cross-origin
+  // iframe, can't be scanned. Users can still paste a working stream via the
+  // "Embed YouTube Link" control, which sets liveStreamId at runtime.
+  liveStreamId: null,
+  streamSrc: `${VIDEO_BASE}/football-goal-1.mp4`,
   kickoffTime: null,          // absolute override; null → use offset below
   kickoffOffsetMinutes: 3,    // real-time countdown length from first visit
   displayDate: 'TODAY',

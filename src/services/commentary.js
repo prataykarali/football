@@ -82,10 +82,4 @@ export class CommentaryService {
     if (pace === 'fast') return `${prefix}${details.split('.')[0]}.`;
     return `${prefix}${details}`;
   }
-
-  batchEvents(events) {
-    if (!events || events.length <= 1) return events;
-    if (events.some(e => e.isKeyMoment)) return events;
-    return [events[events.length - 1]];
-  }
 }

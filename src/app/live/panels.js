@@ -1,5 +1,6 @@
 import { MATCH_INFO, SAMPLE_MATCH_EVENTS } from '../../data/sampleMatch.js';
 import { Toast } from '../../components/Toast.js';
+import { setHTML } from '../../utils/dom.js';
 
 export const livePanelMethods = {
   async _showCatchUp(options = {}) {
@@ -94,7 +95,7 @@ export const livePanelMethods = {
       btn?.classList.add('btn--glass');
       if (panel) {
         panel.hidden = true;
-        panel.innerHTML = '';
+        panel.replaceChildren();
       }
       Toast.show({ message: '☀️ Night Owl off.', type: 'info', duration: 2000 });
     }
@@ -112,7 +113,7 @@ export const livePanelMethods = {
       .map(e => ({ minute: e.minute, description: e.details || e.type }));
 
     panel.hidden = false;
-    panel.innerHTML = `
+    setHTML(panel, `
       <div class="live-action-panel__header">
         <strong>Night Owl Monitor</strong>
         <span class="${breakStatus.safe ? 'panel-pill panel-pill--safe' : 'panel-pill panel-pill--danger'}">
@@ -138,7 +139,7 @@ export const livePanelMethods = {
         <button class="btn btn--glass btn--sm" data-nightowl-action="cancel-break">Cancel</button>
       </div>
       <div id="night-owl-break-countdown" class="night-owl-break-countdown"></div>
-    `;
+    `);
   },
 
   _startNightOwlBreak() {
@@ -173,7 +174,9 @@ export const livePanelMethods = {
       if (question) {
         Toast.show({ message: '🧠 New quiz question available on Predictions page!', type: 'quiz', duration: 4000 });
       }
-    } catch { }
+    } catch (error) {
+      console.warn('Quiz generation skipped after an error.', error);
+    }
   },
 
   async _exportProof() {
@@ -204,7 +207,7 @@ export const livePanelMethods = {
     if (!panel || !calldata) return;
 
     panel.hidden = false;
-    panel.innerHTML = `
+    setHTML(panel, `
       <div class="live-action-panel__header">
         <strong>Match Proof</strong>
         <span class="panel-pill panel-pill--safe">EXPORTED</span>
@@ -222,7 +225,7 @@ export const livePanelMethods = {
         <span>Engagement fingerprint</span>
         <code>${this._escapeHtml(String(calldata.engagement_fingerprint))}</code>
       </div>
-    `;
+    `);
   }
 
   // ─── HIGHLIGHTS PAGE ────────────────────────────────────

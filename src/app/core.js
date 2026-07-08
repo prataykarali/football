@@ -5,9 +5,14 @@ import { NightOwlService } from '../services/nightOwl.js';
 import { CrowdPulseService } from '../services/crowdPulse.js';
 import { VenueMapService } from '../services/venueMap.js';
 import { MatchProofService } from '../services/matchProof.js';
+import { SustainabilityService } from '../services/sustainability.js';
+import { StaffPanel } from '../components/StaffPanel.js';
 import { SAMPLE_MATCH_EVENTS } from '../data/sampleMatch.js';
 import { DEFAULT_MATCH_SPEED } from './constants.js';
 import { Toast } from '../components/Toast.js';
+import { SettingsPanel } from '../components/SettingsPanel.js';
+import { setHTML } from '../utils/dom.js';
+import { setTTSEnabled, speak as speakTTS } from '../utils/tts.js';
 import { gsap } from 'gsap';
 
 export const coreMethods = {
@@ -33,7 +38,13 @@ export const coreMethods = {
     }
 
     document.querySelectorAll('.site-nav__link').forEach(link => {
-      link.classList.toggle('site-nav__link--active', link.dataset.page === pageId);
+      const isActive = link.dataset.page === pageId;
+      link.classList.toggle('site-nav__link--active', isActive);
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
     });
 
     this.currentPage = pageId;
@@ -78,11 +89,22 @@ export const coreMethods = {
     const hamburger = document.getElementById('nav-hamburger');
     const links = document.getElementById('nav-links');
     if (hamburger && links) {
-      hamburger.addEventListener('click', () => {
-        links.classList.toggle('open');
+      const toggleMenu = () => {
+        const isOpen = links.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen.toString());
+      };
+      hamburger.addEventListener('click', toggleMenu);
+      hamburger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleMenu();
+        }
       });
       links.querySelectorAll('.site-nav__link').forEach(link => {
-        link.addEventListener('click', () => links.classList.remove('open'));
+        link.addEventListener('click', () => {
+          links.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
       });
     }
 
@@ -103,17 +125,31 @@ export const coreMethods = {
     const savedTheme = localStorage.getItem('vantage_theme') || 'neon';
     this._applyTheme(savedTheme);
 
-    switcher.querySelectorAll('.theme-dot').forEach(dot => {
-      if (dot.dataset.theme === savedTheme) {
-        dot.classList.add('theme-dot--active');
-      }
-      dot.addEventListener('click', () => {
+    const dots = switcher.querySelectorAll('.theme-dot');
+    dots.forEach(dot => {
+      const isCurrent = dot.dataset.theme === savedTheme;
+      dot.classList.toggle('theme-dot--active', isCurrent);
+      dot.setAttribute('aria-checked', isCurrent.toString());
+
+      const activateTheme = () => {
         const theme = dot.dataset.theme;
         this._applyTheme(theme);
-        switcher.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('theme-dot--active'));
+        dots.forEach(d => {
+          d.classList.remove('theme-dot--active');
+          d.setAttribute('aria-checked', 'false');
+        });
         dot.classList.add('theme-dot--active');
+        dot.setAttribute('aria-checked', 'true');
         localStorage.setItem('vantage_theme', theme);
         Toast.show({ message: `Theme: ${theme}`, type: 'info', duration: 2000 });
+      };
+
+      dot.addEventListener('click', activateTheme);
+      dot.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activateTheme();
+        }
       });
     });
   },
@@ -127,6 +163,74 @@ export const coreMethods = {
     }
   },
 
+  // ─── Settings Panel ────────────────────────────────────
+
+  _initSettingsPanel() {
+    const container = document.getElementById('settings-container');
+    if (!container) return;
+    this.settingsPanel = new SettingsPanel(container);
+    this.settingsPanel.render();
+    this.settingsPanel.onSettingsChange((next) => this._applySettings(next));
+
+    const btn = document.getElementById('btn-settings');
+    btn?.addEventListener('click', () => {
+      const isOpen = !container.hidden;
+      container.hidden = isOpen;
+      btn.setAttribute('aria-expanded', (!isOpen).toString());
+      if (!isOpen) container.focus?.();
+    });
+
+    // Apply the persisted settings once on boot so toggles stay in sync.
+    this._applySettings(this.settings);
+  },
+
+  _applySettings(next = {}) {
+    this.settings = { ...this.settings, ...next };
+    try {
+      localStorage.setItem('vantage_settings', JSON.stringify(this.settings));
+    } catch (error) {
+      console.warn('Settings could not be persisted.', error);
+    }
+
+    const body = document.body;
+    body.classList.toggle('reduced-motion', Boolean(this.settings.visionImpaired));
+    body.classList.toggle('high-contrast', Boolean(this.settings.visionImpaired));
+    body.classList.toggle('hearing-impaired', Boolean(this.settings.hearingImpaired));
+
+    setTTSEnabled(Boolean(this.settings.visionImpaired));
+
+    // Reflect toggle state back into the panel checkboxes if they exist.
+    const panel = this.settingsPanel?.containerEl;
+    if (panel) {
+      const hearing = panel.querySelector('#toggle-hearing');
+      const vision = panel.querySelector('#toggle-vision');
+      const staff = panel.querySelector('#toggle-staff');
+      hearing?.classList.toggle('toggle--active', Boolean(this.settings.hearingImpaired));
+      hearing?.setAttribute('aria-checked', Boolean(this.settings.hearingImpaired).toString());
+      vision?.classList.toggle('toggle--active', Boolean(this.settings.visionImpaired));
+      vision?.setAttribute('aria-checked', Boolean(this.settings.visionImpaired).toString());
+      staff?.classList.toggle('toggle--active', Boolean(this.settings.staffMode));
+      staff?.setAttribute('aria-checked', Boolean(this.settings.staffMode).toString());
+      const lang = panel.querySelector('#setting-lang');
+      if (lang && this.settings.language) lang.value = this.settings.language;
+    }
+
+    const staffContainer = document.getElementById('staff-command-container');
+    if (staffContainer) {
+      staffContainer.hidden = !this.settings.staffMode;
+      if (this.settings.staffMode) {
+        if (!this.staffPanel) {
+          this.staffPanel = new StaffPanel(staffContainer, this);
+        }
+        this.staffPanel.render();
+      }
+    }
+  },
+
+  _speak(text) {
+    if (this.settings?.visionImpaired) speakTTS(text, { lang: this.settings?.language || 'en' });
+  },
+
   // ─── Services ───────────────────────────────────────────
 
   _initServices() {
@@ -134,6 +238,7 @@ export const coreMethods = {
     this.playerCardService = new PlayerCardService();
     this.venueMapService = new VenueMapService();
     this.matchProofService = new MatchProofService();
+    this.sustainabilityService = new SustainabilityService();
 
     const initialSpeed = parseInt(document.getElementById('speed-select')?.value || `${DEFAULT_MATCH_SPEED}`, 10);
     this.matchFeed = new MatchFeed(SAMPLE_MATCH_EVENTS, initialSpeed);
@@ -145,7 +250,8 @@ export const coreMethods = {
     try {
       const response = await fetch('/api/status');
       this.apiStatus = response.ok ? await response.json() : null;
-    } catch {
+    } catch (error) {
+      console.warn('API status unavailable; using offline service banner.', error);
       this.apiStatus = null;
     }
   },
@@ -156,7 +262,7 @@ export const coreMethods = {
 
     const isGeminiOnline = this.apiStatus?.services?.gemini?.configured;
 
-    el.innerHTML = `
+    setHTML(el, `
       <div class="api-status-card__title">Live Services</div>
       <div class="api-status-card__body">
         Commentary: ${isGeminiOnline ? '<strong style="color:var(--accent-green);">Gemini 2.5 Live Active</strong>' : 'fallback mode'}<br>
@@ -164,7 +270,7 @@ export const coreMethods = {
         Quiz/leaderboard: local + backend fallback<br>
         Maps/weather: local stadium data
       </div>
-    `;
+    `);
 
     if (isGeminiOnline) {
       el.classList.remove('api-status-card--offline');
@@ -248,7 +354,9 @@ export const coreMethods = {
     try {
       const saved = localStorage.getItem('vantage_settings');
       if (saved) return JSON.parse(saved);
-    } catch { }
+    } catch (error) {
+      console.warn('Saved settings could not be read; using defaults.', error);
+    }
     return {
       language: 'en',
       pace: 'medium',

@@ -3,6 +3,7 @@ import { Toast } from '../components/Toast.js';
 import { venueImages, transportRoutes, venueSchedule } from '../data/venueExperience.js';
 import { initVenueLeafletMap } from './venue/leafletMap.js';
 import { renderVenueSvgMap } from './venue/venueSvgMap.js';
+import { escapeHTML, setHTML } from '../utils/dom.js';
 
 export const venuePageMethods = {
   _initVenuePage() {
@@ -28,25 +29,36 @@ export const venuePageMethods = {
 
       const bgImg = venueImages[venue.id] || venueImages['metlife-stadium'];
       const isVideo = bgImg.endsWith('.mp4');
-      heroContainer.innerHTML = `
+      const safeVenueName = escapeHTML(venue.name);
+      const safeVenueCity = escapeHTML(venue.city);
+      const safeBgImg = escapeHTML(bgImg);
+      const safeCapacity = Number.isFinite(Number(venue.capacity)) ? Number(venue.capacity).toLocaleString() : 'Unknown';
+
+      setHTML(heroContainer, `
         <div class="venue-hero motion-scale-in">
           ${isVideo
-            ? `<video class="venue-hero__img" autoplay muted loop playsinline src="${bgImg}" style="width:100%;height:100%;object-fit:cover;"></video>`
-            : `<img class="venue-hero__img" src="${bgImg}" alt="${venue.name}" loading="lazy"
-                 onerror="this.onerror=null;this.src='/images/stadium-aerial.jpg';" />`
+            ? `<video class="venue-hero__img" autoplay muted loop playsinline src="${safeBgImg}" style="width:100%;height:100%;object-fit:cover;"></video>`
+            : `<img class="venue-hero__img" src="${safeBgImg}" alt="${safeVenueName}" loading="lazy" />`
           }
           <div class="venue-hero__overlay">
-            <div class="venue-hero__name">${venue.name}</div>
-            <div class="venue-hero__location">${venue.city} · Capacity: ${venue.capacity.toLocaleString()}</div>
+            <div class="venue-hero__name">${safeVenueName}</div>
+            <div class="venue-hero__location">${safeVenueCity} · Capacity: ${safeCapacity}</div>
           </div>
         </div>
-      `;
+      `);
+
+      const heroImage = heroContainer.querySelector('.venue-hero__img');
+      if (heroImage?.tagName === 'IMG') {
+        heroImage.addEventListener('error', () => {
+          heroImage.src = venueImages['metlife-stadium'];
+        }, { once: true });
+      }
 
       const weather = venue.weather;
       const weatherAlertHtml = weather.alert 
         ? `<div class="venue-weather-alert animate-pulse" style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--accent-red); border-radius: var(--radius-md); padding: var(--space-md); margin-bottom: var(--space-xl); display: flex; align-items: center; gap: var(--space-sm); color: var(--accent-red); font-size: 0.88rem; font-weight: 500;">
              <span>🚨</span>
-             <span>${weather.alert}</span>
+             <span>${escapeHTML(weather.alert)}</span>
            </div>`
         : '';
 
@@ -57,21 +69,21 @@ export const venuePageMethods = {
       const routes = transportRoutes[venue.id] || transportRoutes['metlife-stadium'];
       const schedule = venueSchedule[venue.id] || [{ match: 'No upcoming matches', date: 'N/A', teams: 'N/A' }];
 
-      contentContainer.innerHTML = `
+      setHTML(contentContainer, `
         <div>
           ${weatherAlertHtml}
 
           <!-- Match Schedule at This Venue -->
           <div class="venue-info-card motion-fade-in" style="margin-bottom:var(--space-xl);">
-            <div class="venue-info-card__title"><span class="venue-info-card__icon">📅</span> Match Schedule at ${venue.name}</div>
+            <div class="venue-info-card__title"><span class="venue-info-card__icon">📅</span> Match Schedule at ${safeVenueName}</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               ${schedule.map(m => `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border-subtle);border-radius:var(--radius-md);">
                   <div>
-                    <div style="font-weight:700;font-size:0.88rem;color:var(--accent-green);">${m.match}</div>
-                    <div style="font-size:0.78rem;color:var(--text-secondary);">${m.teams}</div>
+                    <div style="font-weight:700;font-size:0.88rem;color:var(--accent-green);">${escapeHTML(m.match)}</div>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);">${escapeHTML(m.teams)}</div>
                   </div>
-                  <div style="font-size:0.75rem;color:var(--text-muted);text-align:right;">${m.date}</div>
+                  <div style="font-size:0.75rem;color:var(--text-muted);text-align:right;">${escapeHTML(m.date)}</div>
                 </div>
               `).join('')}
             </div>
@@ -82,15 +94,18 @@ export const venuePageMethods = {
             <div class="venue-info-card__title"><span class="venue-info-card__icon">📍</span> GPS Matchday Route</div>
             <div id="venue-gps-status" style="color:var(--text-secondary);margin-bottom:var(--space-md); font-size:0.88rem;">
               ${venue.isSimulated 
-                ? `Showing: <strong>${venue.name}</strong>. Enable browser GPS for local detection.` 
-                : `Located: <strong>${venue.name}</strong> (${venue.distanceKm} km away)`}
+                ? `Showing: <strong>${safeVenueName}</strong>. Enable browser GPS for local detection.` 
+                : `Located: <strong>${safeVenueName}</strong> (${Number(venue.distanceKm) || 0} km away)`}
             </div>
             <div style="display:flex; gap:10px; margin-bottom:var(--space-md);">
               <button class="btn btn--primary btn--sm" id="btn-use-gps" aria-label="Check my location">
                 <span>Check My Location</span>
               </button>
               <select id="venue-selector" class="setting-select" style="width:auto;padding:6px 12px;font-size:0.8rem;border-radius:var(--radius-full);">
-                ${VenueMapService.STADIUMS.map(s => `<option value="${s.id}" ${s.id === venue.id ? 'selected' : ''}>${s.name.split(' (')[0]}</option>`).join('')}
+                ${VenueMapService.STADIUMS.map(s => {
+                  const optionId = String(s.id || '').replace(/[^\w-]/g, '');
+                  return `<option value="${optionId}" ${s.id === venue.id ? 'selected' : ''}>${escapeHTML(s.name.split(' (')[0])}</option>`;
+                }).join('')}
               </select>
             </div>
             
@@ -101,21 +116,21 @@ export const venuePageMethods = {
             <div id="venue-route-result">
               <div class="route-summary" style="background:rgba(255,255,255,0.02); padding:var(--space-md); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
-                  <strong>${route.destination}</strong>
+                  <strong>${escapeHTML(route.destination)}</strong>
                   <span style="font-size:0.75rem; background:rgba(20, 150, 255, 0.15); color:var(--accent-blue); padding:2px 8px; border-radius:var(--radius-full); font-weight:700;">
                     ${route.isWheelchairAccessible ? '♿ ACCESSIBLE ROUTE' : 'STANDARD ROUTE'}
                   </span>
                 </div>
                 <div style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:var(--space-md);">
-                  Distance: <strong>${route.totalDistance}</strong> · Time: <strong>${route.estimatedTime}</strong> · Covered: <strong>${route.hasCoveredWalkway ? 'Yes' : 'No'}</strong>
+                  Distance: <strong>${escapeHTML(route.totalDistance)}</strong> · Time: <strong>${escapeHTML(route.estimatedTime)}</strong> · Covered: <strong>${route.hasCoveredWalkway ? 'Yes' : 'No'}</strong>
                 </div>
                 <div class="route-steps-list" style="display:flex; flex-direction:column; gap:8px;">
                   ${route.steps.map((step, idx) => `
                     <div class="route-step" style="display:flex; align-items:flex-start; gap:var(--space-sm); font-size:0.82rem;">
                       <span style="background:var(--bg-glass-active); color:var(--accent-green); width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.7rem; font-weight:700; margin-top:2px;">${idx + 1}</span>
                       <div style="flex:1;">
-                        <div>${step.instruction}</div>
-                        <div style="font-size:0.72rem; color:var(--text-muted);">${step.distance}</div>
+                        <div>${escapeHTML(step.instruction)}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">${escapeHTML(step.distance)}</div>
                       </div>
                       ${step.accessible ? '<span title="Accessible step" style="font-size:0.8rem; margin-top:2px;">♿</span>' : ''}
                     </div>
@@ -131,18 +146,20 @@ export const venuePageMethods = {
             <p style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:var(--space-md);">Select a gate to dynamically re-route accessible navigation:</p>
             <div class="gate-grid" style="display:grid; grid-template-columns:1fr; gap:8px;">
               ${venue.gates.map(g => {
-                const densityClass = g.density === 'high' ? 'gate-density--high' : g.density === 'medium' ? 'gate-density--medium' : 'gate-density--low';
                 const isSelected = g.id === selectedGateId;
+                const gateId = String(g.id || '').replace(/[^\w-]/g, '');
+                const density = ['low', 'medium', 'high'].includes(String(g.density).toLowerCase()) ? String(g.density).toLowerCase() : 'low';
+                const densityClass = `gate-density--${density}`;
                 return `
-                  <div class="gate-card select-gate-row" data-gate-id="${g.id}" style="cursor:pointer; border:1px solid ${isSelected ? 'var(--accent-green)' : 'var(--border-subtle)'}; background:${isSelected ? 'var(--bg-glass-active)' : 'rgba(255,255,255,0.02)'}; transition:all 0.2s; padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+                  <div class="gate-card select-gate-row" data-gate-id="${gateId}" tabindex="0" role="button" aria-pressed="${isSelected}" style="cursor:pointer; border:1px solid ${isSelected ? 'var(--accent-green)' : 'var(--border-subtle)'}; background:${isSelected ? 'var(--bg-glass-active)' : 'rgba(255,255,255,0.02)'}; transition:all 0.2s; padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
                       <span style="font-size:1.1rem; filter:${isSelected ? 'none' : 'grayscale(1)'};">🚪</span>
                       <div>
-                        <div style="font-weight:600; font-size:0.88rem; color:${isSelected ? 'var(--accent-green)' : 'var(--text-primary)'};">${g.name}</div>
-                        <div style="font-size:0.72rem; color:var(--text-muted);">Wait: ${g.waitMinutes} mins · ${g.isAccessible ? '♿ Step-free' : 'Standard Turnstiles'}</div>
+                        <div style="font-weight:600; font-size:0.88rem; color:${isSelected ? 'var(--accent-green)' : 'var(--text-primary)'};">${escapeHTML(g.name)}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">Wait: ${Number(g.waitMinutes) || 0} mins · ${g.isAccessible ? '♿ Step-free' : 'Standard Turnstiles'}</div>
                       </div>
                     </div>
-                    <span class="${densityClass}" style="font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:4px;">${g.density.toUpperCase()}</span>
+                    <span class="${densityClass}" style="font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:4px;">${density.toUpperCase()}</span>
                   </div>
                 `;
               }).join('')}
@@ -152,9 +169,9 @@ export const venuePageMethods = {
           <!-- Stadium Facts -->
           <div class="venue-info-card motion-fade-in" style="margin-bottom:var(--space-xl);">
             <div class="venue-info-card__title"><span class="venue-info-card__icon">🏟️</span> Stadium Facts</div>
-            <div class="venue-stat"><span class="venue-stat__label">Capacity</span><span class="venue-stat__value">${venue.capacity.toLocaleString()}</span></div>
-            <div class="venue-stat"><span class="venue-stat__label">City</span><span class="venue-stat__value">${venue.city}</span></div>
-            <div class="venue-stat"><span class="venue-stat__label">WC 2026 Role</span><span class="venue-stat__value">${venue.role || 'Venue'}</span></div>
+            <div class="venue-stat"><span class="venue-stat__label">Capacity</span><span class="venue-stat__value">${safeCapacity}</span></div>
+            <div class="venue-stat"><span class="venue-stat__label">City</span><span class="venue-stat__value">${safeVenueCity}</span></div>
+            <div class="venue-stat"><span class="venue-stat__label">WC 2026 Role</span><span class="venue-stat__value">${escapeHTML(venue.role || 'Venue')}</span></div>
             <div class="venue-stat"><span class="venue-stat__label">Surface</span><span class="venue-stat__value">Natural Grass (FIFA Quality Pro)</span></div>
             <div class="venue-stat"><span class="venue-stat__label">Roof</span><span class="venue-stat__value">${venue.id === 'mercedes-benz-stadium' || venue.id === 'nrg-stadium' || venue.id === 'bc-place' || venue.id === 'att-stadium' ? 'Retractable' : venue.id === 'sofi-stadium' ? 'Open-air with translucent canopy' : 'Open-air'}</span></div>
             <div class="venue-stat"><span class="venue-stat__label">Pitch Size</span><span class="venue-stat__value">105m x 68m (FIFA Standard)</span></div>
@@ -166,11 +183,11 @@ export const venuePageMethods = {
           <div class="venue-info-card motion-fade-in" style="margin-bottom:var(--space-xl);">
             <div class="venue-info-card__title"><span class="venue-info-card__icon">🌦️</span> Live Weather Alert</div>
             <div style="display:flex; align-items:center; gap:var(--space-md); background:rgba(255,255,255,0.02); padding:var(--space-md); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
-              <div style="font-size:2.5rem; text-shadow:0 0 10px rgba(255,255,255,0.1);">${weather.icon}</div>
+              <div style="font-size:2.5rem; text-shadow:0 0 10px rgba(255,255,255,0.1);">${escapeHTML(weather.icon)}</div>
               <div>
-                <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">${weather.tempC}°C</div>
-                <div style="font-size:0.82rem; color:var(--text-secondary);">${weather.condition}</div>
-                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Wind: ${weather.windKmH} km/h · Rain probability: ${weather.rainProbability}%</div>
+                <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">${Number(weather.tempC) || 0}°C</div>
+                <div style="font-size:0.82rem; color:var(--text-secondary);">${escapeHTML(weather.condition)}</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Wind: ${Number(weather.windKmH) || 0} km/h · Rain probability: ${Number(weather.rainProbability) || 0}%</div>
               </div>
             </div>
           </div>
@@ -181,12 +198,12 @@ export const venuePageMethods = {
             <div class="transport-routes">
               ${routes.map(r => `
                 <div class="transport-route">
-                  <div class="transport-route__icon">${r.icon}</div>
+                  <div class="transport-route__icon">${escapeHTML(r.icon)}</div>
                   <div class="transport-route__info">
-                    <div class="transport-route__name">${r.name}</div>
-                    <div class="transport-route__desc">${r.desc}</div>
+                    <div class="transport-route__name">${escapeHTML(r.name)}</div>
+                    <div class="transport-route__desc">${escapeHTML(r.desc)}</div>
                   </div>
-                  <div class="transport-route__time">${r.time}</div>
+                  <div class="transport-route__time">${escapeHTML(r.time)}</div>
                 </div>
               `).join('')}
             </div>
@@ -212,6 +229,46 @@ export const venuePageMethods = {
                 <span style="font-weight:600;font-size:0.85rem;">Water Stations</span>
                 <span style="font-size:0.78rem;color:var(--accent-green);">Free refill points at every level</span>
               </div>
+            </div>
+          </div>
+
+          <!-- 🌱 Green Fan Guide & Sustainability Hub -->
+          <div class="venue-info-card motion-fade-in" style="margin-bottom:var(--space-xl); border:1px solid var(--accent-green);">
+            <div class="venue-info-card__title" style="color:var(--accent-green); display:flex; justify-content:space-between; align-items:center;">
+              <span>🌱 Green Fan Guide</span>
+              <span style="font-size:0.75rem; background:rgba(0, 220, 120, 0.15); padding:2px 8px; border-radius:var(--radius-full); font-weight:700;">
+                ${this.sustainabilityService ? this.sustainabilityService.getPoints() : 0} Eco-Points
+              </span>
+            </div>
+            
+            <div style="background:rgba(0, 220, 120, 0.05); padding:var(--space-md); border-radius:var(--radius-md); border:1px solid rgba(0, 220, 120, 0.2); margin-bottom:var(--space-md);">
+              <div style="display:flex; align-items:center; gap:var(--space-sm); font-size:0.8rem; font-weight:600; color:var(--accent-green); margin-bottom:6px;">
+                <span>🚇</span> Travel Green &amp; Save Carbon
+              </div>
+              <div style="font-size:0.78rem; line-height:1.4; color:var(--text-secondary);">
+                Take NJ Transit Rail or Shuttle Bus to save up to <strong>3.8 kg of CO2</strong> compared to driving a personal car. Equivalent to powering a smartphone for 312 hours!
+              </div>
+            </div>
+
+            <div style="font-size:0.8rem; font-weight:bold; margin-bottom:var(--space-sm);">Log your Eco-Actions to earn points:</div>
+            <div class="eco-actions-list" style="display:flex; flex-direction:column; gap:8px;">
+              ${(this.sustainabilityService ? this.sustainabilityService.getActionsList() : []).map(action => `
+                <div class="eco-action-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+                  <div style="display:flex; align-items:center; gap:8px; font-size:0.78rem;">
+                    <span>${escapeHTML(action.icon)}</span>
+                    <div>
+                      <div style="font-weight:600; color:${action.completed ? 'var(--accent-green)' : 'var(--text-primary)'};">${escapeHTML(action.label)}</div>
+                      <div style="font-size:0.68rem; color:var(--text-muted);">+${action.points} Eco-Points</div>
+                    </div>
+                  </div>
+                  <div>
+                    ${action.completed
+                      ? '<span style="color:var(--accent-green); font-size:0.8rem; font-weight:bold;">✅ Claimed</span>'
+                      : `<button class="btn btn--glass btn--sm btn-claim-eco" data-action-id="${escapeHTML(action.id)}" style="font-size:0.7rem; padding:4px 10px;">Claim</button>`
+                    }
+                  </div>
+                </div>
+              `).join('')}
             </div>
           </div>
 
@@ -249,7 +306,7 @@ export const venuePageMethods = {
             <div class="venue-stat"><span class="venue-stat__label">Sign Language Interpreters</span><span class="venue-stat__value">Available on request (48h notice)</span></div>
           </div>
         </div>
-      `;
+      `);
 
       // Bind events inside the content Container
       const useGpsBtn = contentContainer.querySelector('#btn-use-gps');
@@ -288,9 +345,32 @@ export const venuePageMethods = {
 
       const gateRows = contentContainer.querySelectorAll('.select-gate-row');
       gateRows.forEach(row => {
-        row.addEventListener('click', () => {
+        const selectGate = () => {
           selectedGateId = row.dataset.gateId;
           renderPage(activeVenue);
+        };
+        row.addEventListener('click', selectGate);
+        row.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectGate();
+          }
+        });
+      });
+
+      const claimBtns = contentContainer.querySelectorAll('.btn-claim-eco');
+      claimBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const actionId = btn.dataset.actionId;
+          const action = this.sustainabilityService?.completeAction(actionId);
+          if (action) {
+            Toast.show({
+              message: `🌱 Claimed ${action.points} Eco-Points for "${action.label}"!`,
+              type: 'success',
+              duration: 3500
+            });
+            renderPage(activeVenue);
+          }
         });
       });
 
@@ -300,7 +380,7 @@ export const venuePageMethods = {
 
     // Render Selector Chips at top
     if (chipsContainer) {
-      chipsContainer.innerHTML = '';
+      chipsContainer.replaceChildren();
       VenueMapService.STADIUMS.forEach(s => {
         const chip = document.createElement('button');
         chip.className = 'venue-chip';

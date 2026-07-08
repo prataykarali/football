@@ -34,15 +34,18 @@
         <a href="#/venue" class="site-nav__link" data-page="venue">Venue</a>
       </div>
       <div class="site-nav__actions">
-        <div class="theme-switcher" id="theme-switcher">
-          <div class="theme-dot theme-dot--neon" data-theme="neon" title="Neon"></div>
-          <div class="theme-dot theme-dot--cyber" data-theme="cyber" title="Cyber"></div>
-          <div class="theme-dot theme-dot--nightowl" data-theme="nightowl" title="Night Owl"></div>
-          <div class="theme-dot theme-dot--rose" data-theme="rose" title="Rose"></div>
-          <div class="theme-dot theme-dot--purple" data-theme="purple" title="Purple"></div>
-          <div class="theme-dot theme-dot--light" data-theme="light" title="Light"></div>
+        <button id="btn-settings" class="icon-btn icon-btn--nav" aria-label="Open settings" aria-haspopup="dialog" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <div class="theme-switcher" id="theme-switcher" role="radiogroup" aria-label="UI Theme Switcher">
+          <div class="theme-dot theme-dot--neon" data-theme="neon" title="Neon" role="radio" aria-checked="true" tabindex="0" aria-label="Select Neon Athletic theme"></div>
+          <div class="theme-dot theme-dot--cyber" data-theme="cyber" title="Cyber" role="radio" aria-checked="false" tabindex="0" aria-label="Select Midnight Cyber theme"></div>
+          <div class="theme-dot theme-dot--nightowl" data-theme="nightowl" title="Night Owl" role="radio" aria-checked="false" tabindex="0" aria-label="Select Kolkata 2AM theme"></div>
+          <div class="theme-dot theme-dot--rose" data-theme="rose" title="Rose" role="radio" aria-checked="false" tabindex="0" aria-label="Select Rose theme"></div>
+          <div class="theme-dot theme-dot--purple" data-theme="purple" title="Purple" role="radio" aria-checked="false" tabindex="0" aria-label="Select Purple theme"></div>
+          <div class="theme-dot theme-dot--light" data-theme="light" title="Light" role="radio" aria-checked="false" tabindex="0" aria-label="Select Classic Light theme"></div>
         </div>
-        <div class="nav-hamburger" id="nav-hamburger">
+        <div class="nav-hamburger" id="nav-hamburger" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </div>
       </div>
@@ -58,8 +61,8 @@
       <div class="hero__bg">
         <div class="hero__video-fallback"></div>
         <video class="hero__video" autoplay muted loop playsinline preload="auto" aria-hidden="true"
-          poster="/images/stage3.jpeg">
-          <source src="/videos/stage1.mp4" type="video/mp4" />
+          poster="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stage3.jpeg">
+          <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stage1.mp4" type="video/mp4" />
         </video>
         <div class="hero__video-tint"></div>
         <div class="hero__vignette"></div>
@@ -127,7 +130,7 @@
           <h2 class="section__title">Match <span class="paint-accent">Spotlight</span></h2>
         </div>
         <div class="spotlight-card motion-scale-in" id="spotlight-card">
-          <div class="spotlight-card__bg" style="background-image: url('/images/ball3.jpeg')"></div>
+          <div class="spotlight-card__bg" style="background-image: url('https://github.com/prataykarali/vantage-football/releases/download/media-v1/ball3.jpeg')"></div>
           <div class="spotlight-card__content">
             <div class="spotlight-header">EL CLASICO · LA LIGA · MATCHDAY 32</div>
             <div class="spotlight-teams">
@@ -189,7 +192,7 @@
     <!-- Fan Zone -->
     <section class="section section--alt">
       <div class="page-container">
-        <div class="fan-zone-banner motion-scale-in" style="background-image: url('/images/ball4.jpeg')">
+        <div class="fan-zone-banner motion-scale-in" style="background-image: url('https://github.com/prataykarali/vantage-football/releases/download/media-v1/ball4.jpeg')">
           <div class="fan-zone-content">
             <h2 class="fan-zone-title">JOIN THE FAN ZONE!</h2>
             <p class="fan-zone-desc">Get exclusive live quizzes, predict moment-by-moment match plays, and sync your high score to the real-time leaderboard.</p>
@@ -245,8 +248,8 @@
     <!-- Live Match Hero Video Strip -->
     <div class="live-hero-strip">
       <video class="live-hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-        <source src="/videos/football-stadium-1.mp4" type="video/mp4" />
-        <source src="/videos/stage1.mp4" type="video/mp4" />
+        <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-stadium-1.mp4" type="video/mp4" />
+        <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stage1.mp4" type="video/mp4" />
       </video>
       <div class="live-hero-tint"></div>
       <!-- Premium Scoreboard -->
@@ -298,10 +301,10 @@
         </div>
 
         <div class="stream-strip" aria-label="Live feed selector">
-          <button class="stream-chip stream-chip--active" data-stream-src="/videos/football-match-1.mp4">Main match feed</button>
-          <button class="stream-chip" data-stream-src="/videos/football-match-2.mp4">Tactical camera</button>
-          <button class="stream-chip" data-stream-src="/videos/football-match-3.mp4">Touchline feed</button>
-          <button class="stream-chip" data-stream-src="/videos/live-stream.mp4">Low bandwidth</button>
+          <button class="stream-chip stream-chip--active" data-stream-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-goal-1.mp4">Main match feed</button>
+          <button class="stream-chip" data-stream-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-match-2.mp4">Tactical camera</button>
+          <button class="stream-chip" data-stream-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-match-3.mp4">Touchline feed</button>
+          <button class="stream-chip" data-stream-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/live-stream.mp4">Low bandwidth</button>
           <button class="stream-chip" id="btn-custom-youtube">🔗 Embed YouTube Link</button>
         </div>
 
@@ -456,14 +459,14 @@
             <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
               <span style="font-size:0.75rem; color:var(--text-secondary); margin-bottom: 2px;">Atmosphere Chant:</span>
               <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
-                <button class="btn btn--primary crowd-mode-btn crowd-mode-btn--active" data-crowd-src="/videos/crowd-atmosphere.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🏟️ Stadium Roar</button>
-                <button class="btn btn--glass crowd-mode-btn" data-crowd-src="/videos/football-crowd-1.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🇦🇷 ARG Chant</button>
-                <button class="btn btn--glass crowd-mode-btn" data-crowd-src="/videos/football-crowd-2.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🇫🇷 FRA Chant</button>
-                <button class="btn btn--glass crowd-mode-btn" data-crowd-src="/videos/stadium-crowd.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🔥 Erupting Crowd</button>
+                <button class="btn btn--primary crowd-mode-btn crowd-mode-btn--active" data-crowd-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/crowd-atmosphere.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🏟️ Stadium Roar</button>
+                <button class="btn btn--glass crowd-mode-btn" data-crowd-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-crowd-1.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🇦🇷 ARG Chant</button>
+                <button class="btn btn--glass crowd-mode-btn" data-crowd-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-crowd-2.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🇫🇷 FRA Chant</button>
+                <button class="btn btn--glass crowd-mode-btn" data-crowd-src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stadium-crowd.mp4" style="font-size:0.68rem; padding:6px 2px; justify-content: center; min-width: 0;">🔥 Erupting Crowd</button>
               </div>
             </div>
           </div>
-          <video id="crowd-audio-element" loop playsinline style="display:none;" src="/videos/crowd-atmosphere.mp4"></video>
+          <video id="crowd-audio-element" loop playsinline style="display:none;" src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/crowd-atmosphere.mp4"></video>
         </div>
 
         <div class="venue-info-card live-travel-card" id="live-travel-card">
@@ -540,8 +543,8 @@
     <!-- Standings Hero -->
     <div class="standings-hero">
       <video class="standings-hero__video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-        <source src="/videos/stadium-wide.mp4" type="video/mp4" />
-        <source src="/videos/stage4.mp4" type="video/mp4" />
+        <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stadium-wide.mp4" type="video/mp4" />
+        <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stage4.mp4" type="video/mp4" />
       </video>
       <div class="standings-hero__overlay">
         <div class="section__label">Live Data · ESPN</div>
@@ -574,8 +577,8 @@
     <!-- Venue Hero Video -->
     <div class="venue-page-hero">
       <video class="venue-page-hero__video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-        <source src="/videos/stadium-entrance.mp4" type="video/mp4" />
-        <source src="/videos/football-stadium-1.mp4" type="video/mp4" />
+        <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/stadium-entrance.mp4" type="video/mp4" />
+        <source src="https://github.com/prataykarali/vantage-football/releases/download/media-v1/football-stadium-1.mp4" type="video/mp4" />
       </video>
       <div class="venue-page-hero__overlay">
         <div class="section__label">Stadium Info</div>
@@ -592,6 +595,7 @@
         </div>
         <div id="venue-hero-container"></div>
         <div class="venue-layout" id="venue-content"></div>
+        <div id="staff-command-container" style="margin-top: 25px;" hidden></div>
       </div>
     </section>
   </div>

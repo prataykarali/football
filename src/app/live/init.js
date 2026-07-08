@@ -1,5 +1,6 @@
 import { PlayerCard } from '../../components/PlayerCard.js';
 import { VideoPlayer } from '../../components/VideoPlayer.js';
+import { clearElement } from '../../utils/dom.js';
 
 export const liveInitMethods = {
   _initLivePage() {
@@ -22,7 +23,7 @@ export const liveInitMethods = {
           mode: 'standard',
           addCommentary: (text, opts = {}) => this._addCommentary(text, opts),
           setMode: () => {},
-          clear: () => { feedEl.innerHTML = ''; }
+          clear: () => clearElement(feedEl)
         };
       }
     }
@@ -80,11 +81,11 @@ export const liveInitMethods = {
     this.matchFeed?.reset?.();
     this.nightOwlService?.clearEvents?.();
     const feed = document.getElementById('commentary-feed');
-    if (feed) feed.innerHTML = '';
+    clearElement(feed);
     const panel = document.getElementById('night-owl-live-panel');
     if (panel) {
       panel.hidden = true;
-      panel.innerHTML = '';
+      clearElement(panel);
     }
   },
 

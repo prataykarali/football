@@ -1,4 +1,5 @@
 import { FEATURED_MATCH, MATCH_INFO } from '../../data/sampleMatch.js';
+import { VIDEO_BASE } from '../../utils/media.js';
 import { DAY_MS, DEFAULT_MATCH_SPEED, HOUR_MS, MINUTE_MS, SECOND_MS } from '../constants.js';
 
 export const demoTimerMethods = {
@@ -51,7 +52,7 @@ export const demoTimerMethods = {
     if (!this.videoPlayer) return;
     const src = match.liveStreamId
       ? `https://www.youtube.com/embed/${match.liveStreamId}`
-      : (match.streamSrc || '/videos/live-stream.mp4');
+      : (match.streamSrc || `${VIDEO_BASE}/football-goal-1.mp4`);
     this.videoPlayer.render(src, {
       autoplay: true, loop: !match.liveStreamId, muted: true, controls: true, overlay: true, isLive,
     });

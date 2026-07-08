@@ -1,16 +1,19 @@
 /**
  * Night Owl Mode Panel
  */
+import { escapeHTML, setHTML } from '../utils/dom.js';
+
 export class NightOwlPanel {
   constructor(containerEl, nightOwlService) {
     this.containerEl = containerEl;
     this.nightOwlService = nightOwlService;
+    this._btnBreakHandler = null;
   }
 
   render() {
     if (!this.containerEl) return;
 
-    this.containerEl.innerHTML = `
+    setHTML(this.containerEl, `
       <div class="night-owl-panel">
         <div class="night-owl-status">
           <div class="night-owl-status__icon">🦉</div>
@@ -31,20 +34,26 @@ export class NightOwlPanel {
           <span>☕</span> Check Break Window
         </button>
 
-        <div id="night-owl-alert-area"></div>
+        <div id="night-owl-alert-area" role="alert" aria-atomic="true"></div>
 
         <div class="catch-up-card">
           <div class="catch-up-card__title">📋 Catch-Up Checkpoint</div>
-          <div id="catchup-summary-content" class="catch-up-card__text">
+          <div id="catchup-summary-content" class="catch-up-card__text" role="status" aria-live="polite" aria-atomic="true">
             Click "Catch Up" in the toolbar to generate an AI summary of what you missed.
           </div>
         </div>
 
         <div id="night-owl-micro-quizzes" style="margin-top: var(--space-sm);"></div>
       </div>
-    `;
+    `);
 
-    this.containerEl.querySelector('#btn-break-check')?.addEventListener('click', () => this.checkBreakWindow());
+    // Ensure we don't double-register the handler
+    const btn = this.containerEl.querySelector('#btn-break-check');
+    if (btn) {
+      if (this._btnBreakHandler) btn.removeEventListener('click', this._btnBreakHandler);
+      this._btnBreakHandler = () => this.checkBreakWindow();
+      btn.addEventListener('click', this._btnBreakHandler);
+    }
   }
 
   activate() {
@@ -53,13 +62,19 @@ export class NightOwlPanel {
 
   deactivate() {
     if (this.containerEl) {
-      this.containerEl.innerHTML = `
+      // Remove any attached button handler to avoid leaks before replacing content
+      const btn = this.containerEl.querySelector('#btn-break-check');
+      if (btn && this._btnBreakHandler) {
+        btn.removeEventListener('click', this._btnBreakHandler);
+        this._btnBreakHandler = null;
+      }
+      setHTML(this.containerEl, `
         <div style="text-align: center; padding: var(--space-2xl); color: var(--text-muted);">
           <div style="font-size: 2rem; margin-bottom: var(--space-sm);">☀️</div>
           <p>Night Owl Mode is off</p>
           <p style="font-size: 0.8rem; margin-top: var(--space-xs);">Toggle it from the header to activate</p>
         </div>
-      `;
+      `);
     }
   }
 
@@ -68,13 +83,15 @@ export class NightOwlPanel {
     if (!alertArea) return;
 
     const labels = { goal: '⚽ GOAL!', red_card: '🟥 RED CARD!', penalty_awarded: '⚠️ PENALTY!' };
-    const label = labels[event.type] || '🔔 BIG MOMENT';
+    const label = labels[event?.type] || '🔔 BIG MOMENT';
+    const minute = escapeHTML(event?.minute ?? '');
+    const details = escapeHTML(event?.details || '');
 
-    alertArea.innerHTML = `
+    setHTML(alertArea, `
       <div class="alert-banner">
-        ${label} ${event.minute}' — ${event.details || ''}
+        ${label} ${minute}' — ${details}
       </div>
-    `;
+    `);
   }
 
   checkBreakWindow() {
@@ -82,32 +99,33 @@ export class NightOwlPanel {
     if (!alertArea || !this.nightOwlService) return;
 
     const status = this.nightOwlService.isBreakSafe();
+    const reason = escapeHTML(status.reason || '');
     if (status.safe) {
-      alertArea.innerHTML = `
+      setHTML(alertArea, `
         <div class="break-timer">
           <div class="break-timer__icon">🟢</div>
           <div>
             <div class="break-timer__text">Safe for a 4-min break!</div>
-            <div class="break-timer__sub">${status.reason}</div>
+            <div class="break-timer__sub">${reason}</div>
           </div>
         </div>
-      `;
+      `);
     } else {
-      alertArea.innerHTML = `
+      setHTML(alertArea, `
         <div class="break-timer" style="background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2);">
           <div class="break-timer__icon">🔴</div>
           <div>
             <div class="break-timer__text" style="color: var(--accent-red);">Don't step away!</div>
-            <div class="break-timer__sub">${status.reason}</div>
+            <div class="break-timer__sub">${reason}</div>
           </div>
         </div>
-      `;
+      `);
     }
   }
 
   showCatchUpSummary(data) {
     const el = this.containerEl?.querySelector('#catchup-summary-content');
     if (!el) return;
-    el.innerHTML = `<p style="white-space: pre-line; color: var(--text-primary);">${data.summary}</p>`;
+    setHTML(el, `<p style="white-space: pre-line; color: var(--text-primary);">${escapeHTML(data?.summary || '')}</p>`);
   }
 }

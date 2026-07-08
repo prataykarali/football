@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import sys
-
 from flask import Response, jsonify
 
-from .config import app
+from .config import GEMINI_API_KEY, app
 
 
 def _current_gemini_key() -> str:
-    proxy_module = sys.modules.get("proxy")
-    return str(getattr(proxy_module, "GEMINI_API_KEY", "")) if proxy_module else ""
+    return GEMINI_API_KEY
 
 @app.route("/api/health", methods=["GET"])
 def health() -> tuple[Response, int]:
@@ -20,13 +17,14 @@ def health() -> tuple[Response, int]:
 @app.route("/api/status", methods=["GET"])
 def status() -> tuple[Response, int]:
     """Report configured integrations without exposing secrets."""
+    gemini_key = _current_gemini_key()
     return jsonify({
         "backend": "online",
         "services": {
             "gemini": {
-                "configured": bool(_current_gemini_key()),
-                "keyFormatOk": bool(_current_gemini_key() and (_current_gemini_key().startswith("AQ.") or _current_gemini_key().startswith("AIzaSy"))),
-                "status": "configured" if _current_gemini_key() else "fallback_mode",
+                "configured": bool(gemini_key),
+                "keyFormatOk": bool(gemini_key and (gemini_key.startswith("AQ.") or gemini_key.startswith("AIzaSy"))),
+                "status": "configured" if gemini_key else "fallback_mode",
             },
             "firebase": {"configured": False, "status": "not_configured"},
             "googleMaps": {"configured": False, "status": "not_configured"},
@@ -34,4 +32,3 @@ def status() -> tuple[Response, int]:
             "textToSpeech": {"configured": False, "status": "browser_api_fallback"},
         },
     }), 200
-

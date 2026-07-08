@@ -6,7 +6,8 @@ from .config import app
 
 # CSP allows the third-party media the app legitimately needs — YouTube/Twitch
 # stream + highlight embeds, YouTube thumbnails, ESPN logos, Wikimedia stadium
-# photos, Google Fonts — while keeping scripts/connections same-origin.
+# photos, Google Fonts/Leaflet CSS, and Leaflet JS — while keeping API
+# connections same-origin.
 # `frame-ancestors` lets Hugging Face Spaces embed the app in its "App" tab
 # iframe; X-Frame-Options: DENY is intentionally omitted because it would break
 # that embed (frame-ancestors is the modern, more expressive replacement).
@@ -15,9 +16,13 @@ _CSP = (
     "img-src 'self' data: https:; "
     "media-src 'self' blob: https:; "
     "connect-src 'self'; "
-    "script-src 'self' 'unsafe-inline'; "
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "script-src 'self' https://unpkg.com; "
+    "script-src-attr 'none'; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
     "font-src 'self' https://fonts.gstatic.com; "
+    "object-src 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self'; "
     "frame-src https://www.youtube.com https://www.youtube-nocookie.com "
     "https://player.twitch.tv https://*.twitch.tv; "
     "frame-ancestors 'self' https://huggingface.co https://*.hf.space;"

@@ -128,31 +128,44 @@ def vision() -> tuple[Response, int]:
         return _error(err)
 
     prompt = (
-        "You are a football player identification expert. "
-        "Analyse the image and identify the football player shown.\n\n"
+        "You are a football broadcast vision analyst. You are given ONE frame from a "
+        "live match TV feed. Report ONLY what is actually visible in this frame — do "
+        "not invent famous names you cannot see.\n\n"
+        "Read any on-screen scoreboard/graphics for the team names, score and clock. "
+        "Describe the player who is the focus of the shot (the one on/near the ball or "
+        "most prominent) by kit colour, role and action — a NAME only if a shirt "
+        "number or face is genuinely legible, otherwise a description.\n\n"
         "Respond ONLY with valid JSON in this exact schema (no markdown fences):\n"
         "{\n"
-        '  "player": "<full name>",\n'
-        '  "confidence": <0.0-1.0>,\n'
-        '  "position": "<playing position>",\n'
-        '  "nationality": "<country>",\n'
-        '  "stats": {"goals": <int>, "assists": <int>, "passes": <int>},\n'
-        '  "funFact": "<one interesting fact>"\n'
+        '  "homeTeam": "<team on left of scoreboard, or best guess>",\n'
+        '  "awayTeam": "<team on right of scoreboard, or best guess>",\n'
+        '  "score": "<e.g. 0 - 0, or \'unknown\'>",\n'
+        '  "minute": "<match clock e.g. 22:38, or \'unknown\'>",\n'
+        '  "inFocus": "<short description of the player in focus>",\n'
+        '  "player": "<player name IF legibly identifiable, else \'Unknown\'>",\n'
+        '  "phase": "<phase of play, e.g. build-up, attack, set-piece, transition>",\n'
+        '  "confidence": <0.0-1.0 how sure you are of THIS reading of the frame>,\n'
+        '  "funFact": "<one short, grounded observation about what is happening>"\n'
         "}\n\n"
-        "If you cannot identify the player, set confidence to 0.0 and player to \"Unknown\"."
+        "Base confidence on how clearly you can read the frame, NOT on recognising a "
+        "star. A clear wide shot you can describe well is high confidence."
     )
 
     try:
         decoded = base64.b64decode(frame_b64)
         if not _ai_ok:
             return jsonify({
+                "homeTeam": "Unknown",
+                "awayTeam": "Unknown",
+                "score": "unknown",
+                "minute": "unknown",
+                "inFocus": "AI vision not configured",
                 "player": "Unknown",
-                "confidence": 0.0,
-                "position": "N/A",
-                "nationality": "N/A",
-                "stats": {"goals": 0, "assists": 0, "passes": 0},
+                "phase": "unknown",
                 "funFact": "AI service not configured. Add a valid API key to backend/.env.",
+                "confidence": 0.0,
                 "isUncertain": True,
+                "source": "not-configured",
             }), 200
 
         # Send base64 image to Google AI Studio vision endpoint (with model fallback)
@@ -192,12 +205,28 @@ def vision() -> tuple[Response, int]:
 
         result = json.loads(raw_text)
 
-        # Confidence gating
-        confidence = float(result.get("confidence", 0.0))
-        if confidence < 0.7:
-            result["isUncertain"] = True
+        # Normalise into the scene-read schema the card expects, keeping the
+        # legacy player/stats fields for backward compatibility.
+        try:
+            confidence = float(result.get("confidence", 0.0))
+        except (TypeError, ValueError):
+            confidence = 0.0
+        confidence = max(0.0, min(1.0, confidence))
 
-        return jsonify(result), 200
+        normalised = {
+            "homeTeam": str(result.get("homeTeam") or "Unknown")[:40],
+            "awayTeam": str(result.get("awayTeam") or "Unknown")[:40],
+            "score": str(result.get("score") or "unknown")[:20],
+            "minute": str(result.get("minute") or "unknown")[:20],
+            "inFocus": str(result.get("inFocus") or "Player in focus")[:160],
+            "player": str(result.get("player") or "Unknown")[:60],
+            "phase": str(result.get("phase") or "open play")[:60],
+            "funFact": str(result.get("funFact") or "")[:280],
+            "confidence": confidence,
+            "isUncertain": confidence < 0.7,
+            "source": "gemini-vision",
+        }
+        return jsonify(normalised), 200
 
     except json.JSONDecodeError:
         logger.error("Vision returned non-JSON: %s", raw_text[:200])

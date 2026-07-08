@@ -1,5 +1,6 @@
 import { FEATURED_MATCH, MATCH_INFO } from '../../data/sampleMatch.js';
 import { Toast } from '../../components/Toast.js';
+import { resolveVideo } from '../../utils/media.js';
 
 export const liveEventMethods = {
   _startMatch(match = FEATURED_MATCH) {
@@ -204,7 +205,8 @@ export const liveEventMethods = {
       document.querySelectorAll('.crowd-mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const src = btn.dataset.crowdSrc;
-          if (!src || !/^\/videos\/[-\w./]+\.mp4$/i.test(src)) return;
+          const resolvedCrowd = resolveVideo(src);
+          if (!resolvedCrowd) return;
 
           document.querySelectorAll('.crowd-mode-btn').forEach(el => {
             el.classList.remove('btn--primary', 'crowd-mode-btn--active');
@@ -215,7 +217,7 @@ export const liveEventMethods = {
 
           const wasPausedByUser = userPausedCrowd || crowdVideo.paused;
 
-          crowdVideo.src = src;
+          crowdVideo.src = resolvedCrowd;
           crowdVideo.load();
           setCrowdMix();
 
@@ -263,6 +265,7 @@ export const liveEventMethods = {
     }
 
     feed.scrollTop = feed.scrollHeight;
+    this._speak(text);
   },
 
   async _handleMatchEvent(event) {
@@ -344,6 +347,8 @@ export const liveEventMethods = {
       vibrate: true,
     });
 
+    this._speak(`${label} ${event.details || ''}`);
+
     this._triggerCrowdReaction(event.type);
 
     if (this.isNightOwlActive) this._renderNightOwlPanel(event);
@@ -401,13 +406,15 @@ export const liveEventMethods = {
   async _identifyPlayer() {
     if (!this.playerCard) return;
     this.playerCard.showLoading();
-    this.videoPlayer?.setZoom?.(3.0);
+    // Mild zoom only — the frame sent to Gemini is full-resolution regardless, and
+    // a heavy zoom just blurs what the user sees.
+    this.videoPlayer?.setZoom?.(1.4);
     this.videoPlayer?.pulseScanReticle?.();
 
     const videoEl = document.getElementById('match-video');
     const isEmbed = !videoEl || videoEl.tagName !== 'VIDEO';
 
-    let playerData = null;
+    let sceneData = null;
 
     // Only real <video> elements can be scanned (canvas can't read a
     // cross-origin YouTube/Twitch iframe). Skip the doomed vision call on embeds.
@@ -420,42 +427,49 @@ export const liveEventMethods = {
       }
       if (frame) {
         try {
-          playerData = await this.playerCardService.identifyPlayer(frame);
+          sceneData = await this.playerCardService.identifyPlayer(frame);
         } catch (err) {
           console.warn('Vision API failed:', err);
         }
       }
     }
 
-    if (!playerData || playerData.error || playerData.player === 'Unknown') {
+    // A scene read with player "Unknown" is still a SUCCESS (we read teams, score,
+    // phase). Only fall back to match-context when the call truly failed.
+    if (!sceneData || sceneData.error) {
       const note = isEmbed
-        ? 'Identified from live match context — external streams can’t be pixel-scanned.'
-        : 'Identified from live match context (AI vision unavailable).';
-      playerData = this._contextIdentifyPlayer(note);
+        ? 'External streams can’t be pixel-scanned — read from live match context instead.'
+        : 'AI vision unavailable — read from live match context instead.';
+      sceneData = this._contextIdentifyScene(note);
     }
 
-    this.playerCard.show(playerData);
+    this.playerCard.show(sceneData);
   },
 
-  // Best-effort player identification from the live event feed, used whenever
+  // Honest fallback describing the scene from the live event feed, used whenever
   // pixel-level vision isn't available (embed stream or AI quota exhausted).
-  _contextIdentifyPlayer(note) {
-    const knownPlayers = this.playerCardService.constructor.KNOWN_PLAYERS;
-    const recent = this.matchFeed?.getCurrentState?.()?.recentEvents || [];
-    const activeName = [...recent].reverse().find(e => e.player)?.player || null;
+  _contextIdentifyScene(note) {
+    const match = this._activeLiveMatch || {};
+    const state = this.matchFeed?.getCurrentState?.() || {};
+    const recent = state.recentEvents || [];
+    const lastEvent = [...recent].reverse().find(e => e.player || e.type) || null;
+    const score = state.score || { home: 0, away: 0 };
 
-    const matchedKey = activeName
-      ? Object.keys(knownPlayers).find(k =>
-          activeName.toLowerCase().includes(k.toLowerCase()) ||
-          k.toLowerCase().includes(activeName.toLowerCase()))
-      : null;
-
-    const key = matchedKey || Object.keys(knownPlayers)[0];
-    const playerData = { ...knownPlayers[key] };
-    playerData.isUncertain = true;
-    playerData.confidence = Math.min(playerData.confidence || 0.7, 0.7);
-    playerData.funFact = `${playerData.funFact} (${note})`;
-    return playerData;
+    return {
+      homeTeam: match.homeTeam?.code || match.homeTeam?.name || 'Home',
+      awayTeam: match.awayTeam?.code || match.awayTeam?.name || 'Away',
+      score: `${score.home ?? 0} - ${score.away ?? 0}`,
+      minute: state.minute != null ? `${state.minute}'` : 'live',
+      inFocus: lastEvent?.player
+        ? `${lastEvent.player} (${lastEvent.team || ''})`.trim()
+        : 'Active player in the current phase',
+      phase: lastEvent?.type ? String(lastEvent.type).replace(/_/g, ' ') : 'open play',
+      player: lastEvent?.player || 'Unknown',
+      confidence: 0.6,
+      isUncertain: true,
+      funFact: note,
+      source: 'match-context',
+    };
   },
 
   _captureVideoFrame() {

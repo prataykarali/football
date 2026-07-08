@@ -2,6 +2,9 @@
  * Video Player Component — plays match stream or highlight clips
  * Supports overlay for Player ID, picture-in-picture, and keyboard shortcuts.
  */
+import { escapeHTML, setHTML } from '../utils/dom.js';
+import { IMAGE_BASE, resolveVideo, VIDEO_BASE } from '../utils/media.js';
+
 export class VideoPlayer {
   constructor(containerEl) {
     this.containerEl = containerEl;
@@ -37,12 +40,12 @@ export class VideoPlayer {
       const connector = embedUrl.includes('?') ? '&' : '?';
       embedUrl = `${embedUrl}${connector}autoplay=${autoplay ? 1 : 0}&mute=${muted ? 1 : 0}&controls=${controls ? 1 : 0}`;
 
-      this.containerEl.innerHTML = `
+      setHTML(this.containerEl, `
         <div class="video-player" role="region" aria-label="Match video player">
           <iframe
             id="match-video"
             class="video-player__video"
-            src="${embedUrl}"
+            src="${escapeHTML(embedUrl)}"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen
@@ -60,22 +63,22 @@ export class VideoPlayer {
           </div>
           ` : ''}
         </div>
-      `;
+      `);
     } else if (isTwitch) {
       let channelName = 'esl_sc2';
       const parts = safeSrc.split('twitch.tv/');
       if (parts[1]) {
-        channelName = parts[1].split('/').shift().split('?').shift().trim();
+        channelName = parts[1].split('/').shift().split('?').shift().trim().replace(/[^\w]/g, '') || channelName;
       }
-      const parentDomain = window.location.hostname || 'localhost';
+      const parentDomain = (window.location.hostname || 'localhost').replace(/[^\w.-]/g, '');
       const embedUrl = `https://player.twitch.tv/?channel=${channelName}&parent=${parentDomain}&autoplay=${autoplay ? 'true' : 'false'}&muted=${muted ? 'true' : 'false'}`;
 
-      this.containerEl.innerHTML = `
+      setHTML(this.containerEl, `
         <div class="video-player" role="region" aria-label="Match video player">
           <iframe
             id="match-video"
             class="video-player__video"
-            src="${embedUrl}"
+            src="${escapeHTML(embedUrl)}"
             frameborder="0"
             allow="autoplay; encrypted-media; picture-in-picture"
             allowfullscreen
@@ -93,9 +96,9 @@ export class VideoPlayer {
           </div>
           ` : ''}
         </div>
-      `;
+      `);
     } else {
-      this.containerEl.innerHTML = `
+      setHTML(this.containerEl, `
         <div class="video-player" role="region" aria-label="Match video player">
           <video
             id="match-video"
@@ -107,9 +110,9 @@ export class VideoPlayer {
             playsinline
             preload="metadata"
             aria-label="Match footage"
-            poster="/images/stage3.jpeg"
+            poster="${escapeHTML(`${IMAGE_BASE}/stage3.jpeg`)}"
           >
-            <source src="${safeSrc}" type="video/mp4" />
+            <source src="${escapeHTML(safeSrc)}" type="video/mp4" />
             Your browser does not support video.
           </video>
           <div class="video-player__scan-reticle" id="video-scan-reticle" hidden>
@@ -146,7 +149,7 @@ export class VideoPlayer {
             </button>
           </div>
         </div>
-      `;
+      `);
     }
 
     this.videoEl = this.containerEl.querySelector('#match-video');
@@ -165,8 +168,8 @@ export class VideoPlayer {
           if (!fallback) {
             fallback = document.createElement('div');
             fallback.className = 'video-fallback';
-            fallback.style.cssText = 'position:absolute;inset:0;background:url(/images/stage3.jpeg) center/cover;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;';
-            fallback.innerHTML = '<div style="background:rgba(0,0,0,0.7);padding:16px 24px;border-radius:12px;font-family:var(--font-heading);font-size:1.2rem;color:#fff;">⚽ LIVE MATCH FEED</div><div style="color:var(--text-muted);font-size:0.8rem;">Stream connecting...</div>';
+            fallback.style.cssText = `position:absolute;inset:0;background:url(${IMAGE_BASE}/stage3.jpeg) center/cover;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;`;
+            setHTML(fallback, '<div style="background:rgba(0,0,0,0.7);padding:16px 24px;border-radius:12px;font-family:var(--font-heading);font-size:1.2rem;color:#fff;">⚽ LIVE MATCH FEED</div><div style="color:var(--text-muted);font-size:0.8rem;">Stream connecting...</div>');
             this.videoEl.parentElement.appendChild(fallback);
           }
         }
@@ -196,12 +199,12 @@ export class VideoPlayer {
 
     video.addEventListener('play', () => {
       this.isPlaying = true;
-      if (playBtn) playBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+      if (playBtn) setHTML(playBtn, '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>');
     });
 
     video.addEventListener('pause', () => {
       this.isPlaying = false;
-      if (playBtn) playBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+      if (playBtn) setHTML(playBtn, '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>');
     });
 
     // Progress bar
@@ -308,12 +311,11 @@ export class VideoPlayer {
   setOverlayScore(homeTeam, awayTeam, homeScore, awayScore) {
     const el = this.containerEl?.querySelector('#video-score-overlay');
     if (el) {
-      const safe = (s) => String(s || '').replace(/[<>&"']/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[c]);
-      el.innerHTML = `
-        <span class="video-score__team">${safe(homeTeam)}</span>
-        <span class="video-score__num">${homeScore} — ${awayScore}</span>
-        <span class="video-score__team">${safe(awayTeam)}</span>
-      `;
+      setHTML(el, `
+        <span class="video-score__team">${escapeHTML(homeTeam)}</span>
+        <span class="video-score__num">${escapeHTML(homeScore)} — ${escapeHTML(awayScore)}</span>
+        <span class="video-score__team">${escapeHTML(awayTeam)}</span>
+      `);
     }
   }
 
@@ -325,10 +327,28 @@ export class VideoPlayer {
 
   _safeMediaSrc(src = '') {
     const text = String(src || '').trim();
-    if (/^\/videos\/[-\w./]+\.mp4$/i.test(text)) return text;
-    if (text.includes('youtube.com') || text.includes('youtu.be')) return text;
-    if (text.includes('twitch.tv')) return text;
-    return '/videos/football-match-1.mp4';
+    try {
+      const url = new URL(text);
+      const host = url.hostname.toLowerCase();
+      const allowedVideoHosts = new Set([
+        'youtube.com',
+        'www.youtube.com',
+        'youtube-nocookie.com',
+        'www.youtube-nocookie.com',
+        'youtu.be',
+        'twitch.tv',
+        'www.twitch.tv',
+        'player.twitch.tv',
+      ]);
+      if (url.protocol === 'https:' && allowedVideoHosts.has(host)) return url.href;
+    } catch {
+      // Non-URL asset references are handled by resolveVideo below.
+    }
+    // Already-resolved release URLs (e.g. a re-render) pass through unchanged.
+    if (text.startsWith(`${VIDEO_BASE}/`) && /\.mp4($|\?)/i.test(text)) return text;
+    // Otherwise only accept known media asset references; anything else falls
+    // back to the release-hosted demo clip.
+    return resolveVideo(text) || `${VIDEO_BASE}/football-goal-1.mp4`;
   }
 
   destroy() {

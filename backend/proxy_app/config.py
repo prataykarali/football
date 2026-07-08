@@ -36,7 +36,22 @@ GEMINI_MODELS = [
 _ai_ok = bool(GEMINI_API_KEY)
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+
+def _cors_origins() -> list[str]:
+    configured = os.getenv("VANTAGE_CORS_ORIGINS", "")
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    if origins:
+        return origins
+    return [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://huggingface.co",
+        r"^https://([a-z0-9-]+\.)*hf\.space$",
+    ]
+
+
+CORS(app, resources={r"/api/*": {"origins": _cors_origins()}})
 app.register_blueprint(pulse_bp)
 
 SUPPORTED_LANGUAGES = {

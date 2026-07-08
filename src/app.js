@@ -47,12 +47,15 @@ export class App {
     this._tacticalPitchAnimationFrame = null;
     this._tacticalPitchResizeHandler = null;
     this._renderVenuePage = null;
+    this.staffPanel = null;
+    this.sustainabilityService = null;
   }
 
   async init() {
     try {
       Toast.init();
       this._initServices();
+      this._initSettingsPanel();
       await this._loadApiStatus();
       this._bindNavigation();
       this._bindThemeSwitcher();

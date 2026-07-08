@@ -72,6 +72,14 @@ class TestSecurityHeaders:
         assert "frame-ancestors" in resp.headers.get("Content-Security-Policy", "")
         assert "https://www.youtube.com" in resp.headers.get("Content-Security-Policy", "")
 
+    def test_csp_blocks_inline_scripts(self, client):
+        """CSP must not allow inline scripts or inline event handlers."""
+        resp = client.get("/api/health")
+        csp = resp.headers.get("Content-Security-Policy", "")
+        script_directive = next((part for part in csp.split(";") if part.strip().startswith("script-src ")), "")
+        assert "'unsafe-inline'" not in script_directive
+        assert "script-src-attr 'none'" in csp
+
     def test_headers_on_health(self, client):
         """Health endpoint carries all security headers."""
         resp = client.get("/api/health")
@@ -92,6 +100,22 @@ class TestSecurityHeaders:
         for header, value in self.EXPECTED_HEADERS.items():
             assert resp.headers.get(header) == value, f"Missing/wrong header on pulse: {header}"
         assert resp.headers.get("Content-Security-Policy", "").startswith(self.CSP_PREFIX)
+
+
+# ------------------------------------------------------------------
+# CORS
+# ------------------------------------------------------------------
+
+class TestCORS:
+    """API CORS must be restricted to known frontend origins."""
+
+    def test_local_vite_origin_allowed(self, client):
+        resp = client.get("/api/health", headers={"Origin": "http://localhost:5173"})
+        assert resp.headers.get("Access-Control-Allow-Origin") == "http://localhost:5173"
+
+    def test_unknown_origin_not_allowed(self, client):
+        resp = client.get("/api/health", headers={"Origin": "https://evil.example"})
+        assert resp.headers.get("Access-Control-Allow-Origin") is None
 
 
 # ------------------------------------------------------------------

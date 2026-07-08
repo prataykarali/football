@@ -1,5 +1,8 @@
-- [ ] Fix live page not running by wiring real vs demo match-feed behavior
-- [ ] Prevent simulated MatchFeed events from starting when real match data is present
-- [ ] Ensure Night Owl and related controls remain functional (listener wiring)
-- [ ] Ensure Stadium Trip distance/time UI continues to work
-- [ ] Refactor lightly for code clarity where touched (follow “fallow/pony tail” intent: DRY + smaller helpers)
+- [x] Fix live page not running by wiring real vs demo match-feed behavior
+- [x] Prevent simulated MatchFeed events from starting when real match data is present
+- [x] Ensure Night Owl and related controls remain functional (listener wiring)
+- [x] Ensure Stadium Trip distance/time UI continues to work
+- [x] Refactor lightly for code clarity where touched (follow "fallow/pony tail" intent: DRY + smaller helpers)
+- [x] Wire SettingsPanel: language/pace/register/theme + accessibility toggles persisted to localStorage
+- [x] Implement TTS narration for vision-impaired mode (big moments + commentary via SpeechSynthesis)
+- [x] Hearing-impaired mode enlarges captions; vision-impaired toggles reduced-motion + high-contrast

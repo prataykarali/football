@@ -53,7 +53,38 @@
   color: var(--text-secondary); margin: 0 var(--space-lg) var(--space-lg);
 }
 
+/* ─── AI Vision Read ──────────────────────────────────────── */
+.vision-read__eyebrow {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent-green); font-weight: 700; margin-bottom: 4px;
+}
+.vision-read__score { color: var(--accent-amber); font-weight: 800; }
+.vision-read__rows {
+  display: flex; flex-direction: column; gap: var(--space-xs);
+  margin: 0 var(--space-lg) var(--space-md);
+}
+.vision-read__row {
+  display: grid; grid-template-columns: 72px 1fr; gap: var(--space-sm);
+  align-items: baseline; background: rgba(255,255,255,0.03);
+  padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+.vision-read__key {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); font-weight: 600;
+}
+.vision-read__val { font-size: 0.8rem; color: var(--text-secondary); }
+
 /* ─── 19. SETTINGS PANEL ───────────────────────────────────── */
+.icon-btn--nav {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; padding: 0; margin-right: var(--space-sm);
+  background: transparent; border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full); color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.icon-btn--nav:hover, .icon-btn--nav:focus-visible { color: var(--accent-green); border-color: var(--accent-green); outline: none; }
+
 .settings-overlay {
   position: fixed; top: 64px; right: 0; width: 320px;
   height: calc(100vh - 64px);
