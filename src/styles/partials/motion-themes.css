@@ -378,6 +378,15 @@ body.theme-light .highlight-card {
   overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
 }
 
+/* Hearing-impaired mode: enlarge commentary captions for readability */
+.hearing-impaired .commentary-item { font-size: 1.08rem; }
+.hearing-impaired .commentary-text { font-weight: 600; }
+.hearing-impaired .video-score__num { font-size: 1.25rem; font-weight: 800; }
+
+/* High-contrast preference (toggled by OS or vision-impaired setting) */
+.high-contrast { --text-primary: #ffffff; --text-secondary: #e6edf3; --border-subtle: #6e7681; }
+.high-contrast .commentary-item, .high-contrast .card, .high-contrast .venue-info-card { border-width: 2px; }
+
 /* ─── 26. SCROLLBAR ────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

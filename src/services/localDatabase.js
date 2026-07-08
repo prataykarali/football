@@ -15,7 +15,8 @@ export class LocalDatabase {
     try {
       const raw = localStorage.getItem(DB_KEY);
       return raw ? { ...DEFAULT_DATA, ...JSON.parse(raw) } : { ...DEFAULT_DATA };
-    } catch {
+    } catch (error) {
+      console.warn('Local database read failed; using defaults.', error);
       return { ...DEFAULT_DATA };
     }
   }
@@ -24,7 +25,9 @@ export class LocalDatabase {
     const next = { ...this.read(), ...patch };
     try {
       localStorage.setItem(DB_KEY, JSON.stringify(next));
-    } catch { }
+    } catch (error) {
+      console.warn('Local database write failed.', error);
+    }
     return next;
   }
 

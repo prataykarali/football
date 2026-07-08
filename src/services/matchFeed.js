@@ -9,7 +9,6 @@ export class MatchFeed {
     this.homeCode = teams.homeCode || 'ARG';
     this.awayCode = teams.awayCode || 'EGY';
     this.currentIndex = 0;
-    this.listeners = new Map();
     this.anyListeners = new Set();
     this.timer = null;
     this.eventLog = [];
@@ -104,17 +103,11 @@ export class MatchFeed {
 
     this.eventLog.push(event);
 
-    // Notify listeners
-    if (this.listeners.has(event.type)) {
-      this.listeners.get(event.type).forEach(cb => cb(event));
-    }
-
     this.anyListeners.forEach(cb => cb(event));
   }
 
   destroy() {
     this.pause();
-    this.listeners.clear();
     this.anyListeners.clear();
     this.eventLog = [];
   }

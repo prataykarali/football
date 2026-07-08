@@ -34,15 +34,18 @@
         <a href="#/venue" class="site-nav__link" data-page="venue">Venue</a>
       </div>
       <div class="site-nav__actions">
-        <div class="theme-switcher" id="theme-switcher">
-          <div class="theme-dot theme-dot--neon" data-theme="neon" title="Neon"></div>
-          <div class="theme-dot theme-dot--cyber" data-theme="cyber" title="Cyber"></div>
-          <div class="theme-dot theme-dot--nightowl" data-theme="nightowl" title="Night Owl"></div>
-          <div class="theme-dot theme-dot--rose" data-theme="rose" title="Rose"></div>
-          <div class="theme-dot theme-dot--purple" data-theme="purple" title="Purple"></div>
-          <div class="theme-dot theme-dot--light" data-theme="light" title="Light"></div>
+        <button id="btn-settings" class="icon-btn icon-btn--nav" aria-label="Open settings" aria-haspopup="dialog" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <div class="theme-switcher" id="theme-switcher" role="radiogroup" aria-label="UI Theme Switcher">
+          <div class="theme-dot theme-dot--neon" data-theme="neon" title="Neon" role="radio" aria-checked="true" tabindex="0" aria-label="Select Neon Athletic theme"></div>
+          <div class="theme-dot theme-dot--cyber" data-theme="cyber" title="Cyber" role="radio" aria-checked="false" tabindex="0" aria-label="Select Midnight Cyber theme"></div>
+          <div class="theme-dot theme-dot--nightowl" data-theme="nightowl" title="Night Owl" role="radio" aria-checked="false" tabindex="0" aria-label="Select Kolkata 2AM theme"></div>
+          <div class="theme-dot theme-dot--rose" data-theme="rose" title="Rose" role="radio" aria-checked="false" tabindex="0" aria-label="Select Rose theme"></div>
+          <div class="theme-dot theme-dot--purple" data-theme="purple" title="Purple" role="radio" aria-checked="false" tabindex="0" aria-label="Select Purple theme"></div>
+          <div class="theme-dot theme-dot--light" data-theme="light" title="Light" role="radio" aria-checked="false" tabindex="0" aria-label="Select Classic Light theme"></div>
         </div>
-        <div class="nav-hamburger" id="nav-hamburger">
+        <div class="nav-hamburger" id="nav-hamburger" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </div>
       </div>
@@ -592,6 +595,7 @@
         </div>
         <div id="venue-hero-container"></div>
         <div class="venue-layout" id="venue-content"></div>
+        <div id="staff-command-container" style="margin-top: 25px;" hidden></div>
       </div>
     </section>
   </div>

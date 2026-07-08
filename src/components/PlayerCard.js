@@ -1,7 +1,7 @@
 /**
  * Player Zoom Card — shows player info with photo, stats, fun fact
  */
-import { escapeHTML } from '../utils/dom.js';
+import { escapeHTML, setHTML } from '../utils/dom.js';
 
 export class PlayerCard {
   constructor(containerEl) {
@@ -11,12 +11,12 @@ export class PlayerCard {
   render() {
     if (!this.containerEl) return;
 
-    this.containerEl.innerHTML = `
+    setHTML(this.containerEl, `
       <div class="player-card" role="dialog" aria-label="Player Information" tabindex="-1">
         <button class="player-card__close" aria-label="Close card">×</button>
         <div id="player-card-content"></div>
       </div>
-    `;
+    `);
 
     this.containerEl.querySelector('.player-card__close')?.addEventListener('click', () => this.hide());
   }
@@ -46,7 +46,7 @@ export class PlayerCard {
       ? 'AI vision unavailable'
       : `${isUncertain ? 'Reading' : 'Clear read'} · ${Math.round(safeConfidence * 100)}% confidence`;
 
-    contentEl.innerHTML = `
+    setHTML(contentEl, `
       <div class="player-card__header">
         <div class="vision-read__eyebrow">🔍 AI Vision Read</div>
         <h3 class="player-card__name">${safeHome} <span class="vision-read__score">${safeScore}</span> ${safeAway}</h3>
@@ -66,21 +66,24 @@ export class PlayerCard {
       <div class="player-card__fun-fact">
         <strong>What Gemini sees:</strong> ${safeFunFact}
       </div>
-    `;
+    `);
 
     this.containerEl.hidden = false;
+    const cardEl = this.containerEl.querySelector('.player-card');
+    cardEl?.focus();
+    this._bindFocusTrap(cardEl);
   }
 
   showLoading() {
     if (!this.containerEl) return;
     const contentEl = this.containerEl.querySelector('#player-card-content');
     if (contentEl) {
-      contentEl.innerHTML = `
+      setHTML(contentEl, `
         <div style="text-align: center; padding: 24px;">
           <div class="spinner" style="margin: 0 auto 16px;"></div>
           <p style="color: var(--text-secondary);">Analyzing camera frame with Gemini Vision...</p>
         </div>
-      `;
+      `);
     }
     this.containerEl.hidden = false;
   }
@@ -89,18 +92,46 @@ export class PlayerCard {
     if (!this.containerEl) return;
     const contentEl = this.containerEl.querySelector('#player-card-content');
     if (contentEl) {
-      contentEl.innerHTML = `<p style="color: var(--accent-red); text-align: center;">${escapeHTML(msg)}</p>`;
+      setHTML(contentEl, `<p style="color: var(--accent-red); text-align: center;">${escapeHTML(msg)}</p>`);
     }
     this.containerEl.hidden = false;
   }
 
-  _safeStat(value) {
-    const number = Number(value);
-    if (!Number.isFinite(number) || number < 0) return 0;
-    return Math.round(number);
+  _bindFocusTrap(cardEl) {
+    if (!cardEl) return;
+    this._unbindFocusTrap();
+
+    this._focusTrapHandler = (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = cardEl.querySelectorAll('button, [tabindex="0"]');
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    };
+    cardEl.addEventListener('keydown', this._focusTrapHandler);
+  }
+
+  _unbindFocusTrap() {
+    if (this._focusTrapHandler && this.containerEl) {
+      const cardEl = this.containerEl.querySelector('.player-card');
+      cardEl?.removeEventListener('keydown', this._focusTrapHandler);
+      this._focusTrapHandler = null;
+    }
   }
 
   hide() {
+    this._unbindFocusTrap();
     if (this.containerEl) this.containerEl.hidden = true;
   }
 }

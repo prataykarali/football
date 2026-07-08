@@ -76,6 +76,15 @@
 .vision-read__val { font-size: 0.8rem; color: var(--text-secondary); }
 
 /* ─── 19. SETTINGS PANEL ───────────────────────────────────── */
+.icon-btn--nav {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; padding: 0; margin-right: var(--space-sm);
+  background: transparent; border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full); color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.icon-btn--nav:hover, .icon-btn--nav:focus-visible { color: var(--accent-green); border-color: var(--accent-green); outline: none; }
+
 .settings-overlay {
   position: fixed; top: 64px; right: 0; width: 320px;
   height: calc(100vh - 64px);

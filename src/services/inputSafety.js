@@ -53,9 +53,8 @@ export class InputSafety {
   static sanitizeText(text) {
     if (!text || typeof text !== 'string') return '';
     return text
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '')
+      .replace(/<\/?[^>]+(>|$)/g, '')
+      .replace(/on\w+=\s*["'][^"']*["']/gi, '')
       .trim();
   }
 
@@ -97,7 +96,7 @@ export class InputSafety {
     // Format A: { questionId, answer, timestamp }
     if (payload.questionId !== undefined || payload.answer !== undefined) {
       if (!payload.questionId) return { valid: false, reason: 'Missing required field: questionId' };
-      if (!payload.answer || (typeof payload.answer === 'string' && !payload.answer.trim())) {
+      if (payload.answer === undefined || payload.answer === null || payload.answer === '' || (typeof payload.answer === 'string' && !payload.answer.trim())) {
         return { valid: false, reason: 'Missing or empty required field: answer' };
       }
       if (!payload.timestamp) return { valid: false, reason: 'Missing required field: timestamp' };

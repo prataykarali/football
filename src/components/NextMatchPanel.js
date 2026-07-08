@@ -2,6 +2,9 @@
  * Next Match Panel Component
  * Displays countdown timer, matchup analysis, and weather details.
  */
+import { setHTML } from '../utils/dom.js';
+import { Toast } from './Toast.js';
+
 export class NextMatchPanel {
   constructor(containerEl) {
     this.containerEl = containerEl;
@@ -11,7 +14,7 @@ export class NextMatchPanel {
   render() {
     if (!this.containerEl) return;
 
-    this.containerEl.innerHTML = `
+    setHTML(this.containerEl, `
       <div class="next-match-panel animate-fade-in">
         <div class="next-match-card">
           <div class="next-match-badge">NEXT CLASH</div>
@@ -26,7 +29,7 @@ export class NextMatchPanel {
               <span>Liverpool</span>
             </div>
           </div>
-          <div class="countdown-timer" id="next-match-countdown">00d 00h 00m 00s</div>
+          <div class="countdown-timer" id="next-match-countdown" aria-live="polite" aria-label="Countdown to match">00d 00h 00m 00s</div>
         </div>
 
         <h3 class="panel-subtitle" style="margin-top: var(--space-xl);">Pre-Match Intel</h3>
@@ -58,12 +61,12 @@ export class NextMatchPanel {
           </button>
         </div>
       </div>
-    `;
+    `);
 
     this._startTimer();
 
     this.containerEl.querySelector('#btn-notify-match')?.addEventListener('click', () => {
-      alert('Notification reminder set for Manchester United vs Liverpool clash!');
+      Toast.show({ message: 'Notification reminder set for Manchester United vs Liverpool clash!', type: 'success', duration: 4000 });
     });
   }
 

@@ -1,6 +1,8 @@
 /**
  * Settings Panel — slide-out with toggle switches
  */
+import { setHTML } from '../utils/dom.js';
+
 export class SettingsPanel {
   constructor(containerEl) {
     this.containerEl = containerEl;
@@ -10,7 +12,7 @@ export class SettingsPanel {
   render() {
     if (!this.containerEl) return;
 
-    this.containerEl.innerHTML = `
+    setHTML(this.containerEl, `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
         <h2 class="settings-title">Settings</h2>
         <button id="btn-close-settings" class="icon-btn" aria-label="Close settings" style="width:28px;height:28px;">×</button>
@@ -120,14 +122,23 @@ export class SettingsPanel {
         <span class="toggle-label">Vision-Impaired (TTS)</span>
         <div id="toggle-vision" class="toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Vision-impaired mode"></div>
       </div>
-    `;
+
+      <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: var(--space-lg) 0;" />
+
+      <h3 style="font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; margin-bottom: var(--space-md);">Operations</h3>
+
+      <div class="toggle-row">
+        <span class="toggle-label">Staff / Organizer Mode</span>
+        <div id="toggle-staff" class="toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Staff / Organizer Mode"></div>
+      </div>
+    `);
 
     this.containerEl.querySelector('#btn-close-settings')?.addEventListener('click', () => {
       this.containerEl.hidden = true;
     });
 
     // Toggle switches
-    ['toggle-hearing', 'toggle-vision'].forEach(id => {
+    ['toggle-hearing', 'toggle-vision', 'toggle-staff'].forEach(id => {
       const el = this.containerEl.querySelector(`#${id}`);
       if (!el) return;
       const handler = () => {
@@ -155,6 +166,7 @@ export class SettingsPanel {
       theme: this.containerEl.querySelector('#setting-theme')?.value || 'neon',
       hearingImpaired: this.containerEl.querySelector('#toggle-hearing')?.classList.contains('toggle--active') || false,
       visionImpaired: this.containerEl.querySelector('#toggle-vision')?.classList.contains('toggle--active') || false,
+      staffMode: this.containerEl.querySelector('#toggle-staff')?.classList.contains('toggle--active') || false,
     });
   }
 

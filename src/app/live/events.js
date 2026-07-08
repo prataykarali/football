@@ -265,6 +265,7 @@ export const liveEventMethods = {
     }
 
     feed.scrollTop = feed.scrollHeight;
+    this._speak(text);
   },
 
   async _handleMatchEvent(event) {
@@ -345,6 +346,8 @@ export const liveEventMethods = {
       duration: 8000,
       vibrate: true,
     });
+
+    this._speak(`${label} ${event.details || ''}`);
 
     this._triggerCrowdReaction(event.type);
 

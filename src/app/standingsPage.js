@@ -1,3 +1,5 @@
+import { escapeHTML, setHTML, safeNumber } from '../utils/dom.js';
+
 export const standingsPageMethods = {
   _initStandingsPage() {
     const tableContainer = document.getElementById('standings-table-container');
@@ -5,34 +7,43 @@ export const standingsPageMethods = {
     const tabsContainer = document.getElementById('standings-group-tabs');
     if (!tableContainer || !sidebar) return;
 
-    tableContainer.innerHTML = '<div style="text-align:center;padding:var(--space-2xl);color:var(--text-muted);">Loading FIFA standings...</div>';
-    sidebar.innerHTML = '';
+    setHTML(tableContainer, '<div style="text-align:center;padding:var(--space-2xl);color:var(--text-muted);">Loading FIFA standings...</div>');
+    sidebar.replaceChildren();
 
     fetch('/api/standings').then(r => r.json()).then(data => {
       const groups = data.groups || [];
       if (groups.length > 0) {
         // Build group tabs
         if (tabsContainer) {
-          tabsContainer.innerHTML = '';
+          tabsContainer.setAttribute('role', 'tablist');
+          tabsContainer.replaceChildren();
           // Add "All Groups" tab
           const allTab = document.createElement('button');
           allTab.className = 'group-tab group-tab--active';
           allTab.textContent = '⚽ All Groups';
           allTab.dataset.groupIdx = 'all';
+          allTab.setAttribute('role', 'tab');
+          allTab.setAttribute('aria-selected', 'true');
           tabsContainer.appendChild(allTab);
           groups.forEach((g, idx) => {
             const tab = document.createElement('button');
             tab.className = 'group-tab';
             tab.textContent = g.name || `Group ${idx + 1}`;
             tab.dataset.groupIdx = idx;
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-selected', 'false');
             tabsContainer.appendChild(tab);
           });
           // Tab switching
           tabsContainer.addEventListener('click', (e) => {
             const tab = e.target.closest('.group-tab');
             if (!tab) return;
-            tabsContainer.querySelectorAll('.group-tab').forEach(t => t.classList.remove('group-tab--active'));
+            tabsContainer.querySelectorAll('.group-tab').forEach(t => {
+              t.classList.remove('group-tab--active');
+              t.setAttribute('aria-selected', 'false');
+            });
             tab.classList.add('group-tab--active');
+            tab.setAttribute('aria-selected', 'true');
             const idx = tab.dataset.groupIdx;
             const filtered = idx === 'all' ? groups : [groups[parseInt(idx, 10)]];
             this._renderFIFAStandings(tableContainer, sidebar, filtered);
@@ -58,10 +69,10 @@ export const standingsPageMethods = {
     };
     const getFlag = (abbr) => teamAbbrMap[abbr?.toUpperCase()] || '🏳️';
 
-    tableContainer.innerHTML = groups.map(g => `
+    setHTML(tableContainer, groups.map(g => `
       <div class="standings-panel motion-fade-in" style="margin-bottom:var(--space-xl);">
         <div class="standings-panel__header">
-          <div class="standings-panel__title">${g.name}</div>
+          <div class="standings-panel__title">${escapeHTML(g.name || 'Group')}</div>
           <div class="standings-panel__league">FIFA World Cup 2026</div>
         </div>
         <div class="table-container">
@@ -73,22 +84,22 @@ export const standingsPageMethods = {
               ${g.teams.map((t, i) => `
                 <tr class="${i === 0 ? 'standings-row--highlight' : ''}">
                   <td class="pos">${i + 1}</td>
-                  <td><div class="team-cell"><span class="team-flag">${getFlag(t.abbreviation)}</span> ${t.name}</div></td>
-                  <td>${t.p}</td>
-                  <td>${t.w}</td>
-                  <td>${t.d}</td>
-                  <td>${t.l}</td>
-                  <td>${t.gf}</td>
-                  <td>${t.ga}</td>
-                  <td class="gd" style="color:${String(t.gd).startsWith('-') ? 'var(--accent-red)' : String(t.gd) === '0' ? 'var(--text-muted)' : 'var(--accent-green)'}">${t.gd}</td>
-                  <td class="pts">${t.pts}</td>
+                  <td><div class="team-cell"><span class="team-flag">${getFlag(t.abbreviation)}</span> ${escapeHTML(t.name || 'Team')}</div></td>
+                  <td>${safeNumber(t.p)}</td>
+                  <td>${safeNumber(t.w)}</td>
+                  <td>${safeNumber(t.d)}</td>
+                  <td>${safeNumber(t.l)}</td>
+                  <td>${safeNumber(t.gf)}</td>
+                  <td>${safeNumber(t.ga)}</td>
+                  <td class="gd" style="color:${String(t.gd).startsWith('-') ? 'var(--accent-red)' : String(t.gd) === '0' ? 'var(--text-muted)' : 'var(--accent-green)'}">${escapeHTML(t.gd)}</td>
+                  <td class="pts">${safeNumber(t.pts)}</td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       </div>
-    `).join('');
+    `).join(''));
 
     this._renderScorersSidebar(sidebar);
   },
@@ -107,7 +118,7 @@ export const standingsPageMethods = {
       { pos: 10, flag: '🇪🇸', team: 'Getafe', p: 32, w: 9, d: 10, l: 13, gf: 28, ga: 38, gd: '-10', pts: 37 },
     ];
 
-    tableContainer.innerHTML = `
+    setHTML(tableContainer, `
       <div class="standings-panel motion-fade-in">
         <div class="standings-panel__header">
           <div class="standings-panel__title">La Liga 2025/26</div>
@@ -137,7 +148,7 @@ export const standingsPageMethods = {
           </table>
         </div>
       </div>
-    `;
+    `);
 
     this._renderScorersSidebar(sidebar);
   },
@@ -154,7 +165,7 @@ export const standingsPageMethods = {
       { rank: 8, name: 'Pedri', club: 'Barcelona', goals: 11 },
     ];
 
-    sidebar.innerHTML = `
+    setHTML(sidebar, `
       <div class="scorers-panel motion-fade-in">
         <div class="scorers-panel__title">⚽ Top Scorers</div>
         ${scorers.map(s => `
@@ -168,6 +179,6 @@ export const standingsPageMethods = {
           </div>
         `).join('')}
       </div>
-    `;
+    `);
   }
 };

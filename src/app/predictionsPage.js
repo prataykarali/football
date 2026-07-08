@@ -1,6 +1,7 @@
 import { SAMPLE_MATCH_EVENTS } from '../data/sampleMatch.js';
 import { LocalDatabase } from '../services/localDatabase.js';
 import { Toast } from '../components/Toast.js';
+import { escapeHTML, setHTML } from '../utils/dom.js';
 
 export const predictionsPageMethods = {
   _initPredictionsPage() {
@@ -47,19 +48,22 @@ export const predictionsPageMethods = {
           <button class="btn btn--primary btn--sm" id="btn-restart-quiz">Play Again</button>
         </div>
       `;
+      const safeQuestion = escapeHTML(q.q || 'Match prediction');
+      const safeSource = escapeHTML(q.source || '');
+      const safeOptions = Array.isArray(q.opts) ? q.opts.map((opt) => escapeHTML(opt)) : [];
       return `
         <div class="quiz-card" style="opacity:1;transform:none;">
           <div class="quiz-meta">${q.isPrediction ? '🧠 LIVE AI PREDICTION' : `🧠 CROWD PULSE QUIZ · Question ${idx + 1}/${quizQuestions.length}`} · Score: ${this._quizScore}</div>
-          <div class="quiz-question">${q.q}</div>
-          ${q.source ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:var(--space-sm);">Grounded in: ${q.source}</div>` : ''}
+          <div class="quiz-question">${safeQuestion}</div>
+          ${safeSource ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:var(--space-sm);">Grounded in: ${safeSource}</div>` : ''}
           <div class="quiz-options" id="quiz-options-container">
-            ${q.opts.map((opt, i) => `<button class="quiz-opt-btn" data-answer="${i}">${opt}</button>`).join('')}
+            ${safeOptions.map((opt, i) => `<button class="quiz-opt-btn" data-answer="${i}">${opt}</button>`).join('')}
           </div>
         </div>
       `;
     };
 
-    main.innerHTML = `
+    setHTML(main, `
       <div class="prediction-card" style="margin-bottom:var(--space-xl);opacity:1;transform:none;">
         <div class="prediction-card__header">
           <div class="prediction-card__title">Match Predictions</div>
@@ -99,7 +103,7 @@ export const predictionsPageMethods = {
         </div>
         ${renderQuiz(this._currentQuizIdx)}
       </div>
-    `;
+    `);
 
     // Event delegation for quiz
     if (this._predictionsClickHandler) {
@@ -167,7 +171,7 @@ export const predictionsPageMethods = {
           this._currentQuizIdx++;
           const quizArea = document.getElementById('quiz-area');
           if (quizArea) {
-            quizArea.innerHTML = renderQuiz(this._currentQuizIdx);
+            setHTML(quizArea, renderQuiz(this._currentQuizIdx));
           }
         }, 2000);
       }
@@ -178,7 +182,7 @@ export const predictionsPageMethods = {
         this._currentQuizIdx = 0;
         this._quizScore = 0;
         const quizArea = document.getElementById('quiz-area');
-        if (quizArea) quizArea.innerHTML = renderQuiz(0);
+        if (quizArea) setHTML(quizArea, renderQuiz(0));
       }
     };
     main.addEventListener('click', this._predictionsClickHandler);
@@ -192,13 +196,17 @@ export const predictionsPageMethods = {
     }));
     const history = LocalDatabase.read().quizHistory || [];
 
-    sidebar.innerHTML = `
+    setHTML(sidebar, `
       <div class="db-card motion-fade-in" style="border:1px solid var(--accent-green);border-radius:var(--radius-lg);padding:var(--space-md);margin-bottom:var(--space-md);background:rgba(8,217,115,0.04);">
         <div class="leaderboard__title" style="margin-bottom:var(--space-sm);">⚡ Live Status</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm);">
             <span style="font-size:0.82rem;color:var(--text-secondary);">Next AI Quiz</span>
             <span id="quiz-countdown" style="font-weight:700;font-size:0.85rem;color:var(--accent-green);font-family:var(--font-heading);letter-spacing:0.04em;">READY</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm);">
+            <span style="font-size:0.82rem;color:var(--text-secondary);">Eco-Points</span>
+            <span id="eco-points-status" style="font-weight:700;font-size:0.85rem;color:var(--accent-green);font-family:var(--font-heading);letter-spacing:0.04em;">${this.sustainabilityService ? this.sustainabilityService.getPoints() : 0} PTS</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm);">
             <span style="font-size:0.82rem;color:var(--text-secondary);">Commentary</span>
@@ -226,21 +234,19 @@ export const predictionsPageMethods = {
             ${leaderboard.map(l => `
               <tr class="${l.isYou ? 'leaderboard-row--you' : ''}">
                 <td><span class="leaderboard-rank ${l.rank === 1 ? 'leaderboard-rank--gold' : l.rank === 2 ? 'leaderboard-rank--silver' : l.rank === 3 ? 'leaderboard-rank--bronze' : ''}">${l.rank}</span></td>
-                <td style="font-weight:600;">${l.name}</td>
-                <td style="font-weight:700;color:var(--accent-green);">${l.score}</td>
-                <td>${l.accuracy}</td>
+                <td style="font-weight:600;">${escapeHTML(l.name)}</td>
+                <td style="font-weight:700;color:var(--accent-green);">${Number(l.score) || 0}</td>
+                <td>${escapeHTML(l.accuracy)}</td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
-    `;
+    `);
 
     // Start quiz countdown timer
     this._startQuizCountdown();
   },
-
-  // ─── STANDINGS PAGE ─────────────────────────────────────
 
   _startQuizCountdown() {
     this._clearManagedInterval('quizCountdown');

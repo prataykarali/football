@@ -28,12 +28,4 @@ export function resolveVideo(path) {
   return `${VIDEO_BASE}/${file}`;
 }
 
-export function resolveImage(path) {
-  const text = String(path || '').trim();
-  if (text.startsWith(`${IMAGE_BASE}/`) && /\.(?:jpe?g|png|webp|avif|gif)($|\?)/i.test(text)) return text;
-  const match = IMAGE_PATH_RE.exec(text);
-  if (!match) return null;
-  const file = match[1];
-  if (file.includes('..')) return null;
-  return `${IMAGE_BASE}/${file}`;
-}
+

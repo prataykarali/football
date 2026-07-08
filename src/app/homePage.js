@@ -1,6 +1,7 @@
 import { NEXT_MATCH } from '../data/sampleMatch.js';
 import { HOUR_MS, SECOND_MS } from './constants.js';
 import { IMAGE_BASE } from '../utils/media.js';
+import { escapeHTML, setHTML } from '../utils/dom.js';
 
 export const homePageMethods = {
   _initHomePage() {
@@ -18,21 +19,24 @@ export const homePageMethods = {
     fetch('/api/fixtures').then(r => r.json()).then(data => {
       const fixtures = data.fixtures || [];
       if (fixtures.length > 0) {
-        container.innerHTML = fixtures.slice(0, 8).map(m => {
-          const homeFlag = this._countryFlag(m.homeTeam.abbreviation);
-          const awayFlag = this._countryFlag(m.awayTeam.abbreviation);
+        setHTML(container, fixtures.slice(0, 8).map(m => {
+          const homeAbbr = String(m.homeTeam?.abbreviation || '');
+          const awayAbbr = String(m.awayTeam?.abbreviation || '');
+          const homeFlag = this._countryFlag(homeAbbr);
+          const awayFlag = this._countryFlag(awayAbbr);
           const date = new Date(m.date);
-          const dateStr = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }).toUpperCase();
-          const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-          const isLive = m.status.isLive;
-          const isSoon = !m.status.isFinished && !isLive && (date.getTime() - Date.now()) < 24 * 60 * 60 * 1000;
+          const isValidDate = !Number.isNaN(date.getTime());
+          const dateStr = isValidDate ? date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }).toUpperCase() : 'TBC';
+          const timeStr = isValidDate ? date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+          const isLive = Boolean(m.status?.isLive);
+          const isSoon = !m.status?.isFinished && !isLive && isValidDate && (date.getTime() - Date.now()) < 24 * 60 * 60 * 1000;
           return `
             <div class="upcoming-card motion-fade-in">
               <div class="upcoming-card__league">FIFA World Cup 2026</div>
               <div class="upcoming-card__teams">
-                <div class="upcoming-card__team">${homeFlag} ${m.homeTeam.name}</div>
+                <div class="upcoming-card__team">${homeFlag} ${escapeHTML(m.homeTeam?.name || 'Home')}</div>
                 <span class="vs-badge">VS</span>
-                <div class="upcoming-card__team">${awayFlag} ${m.awayTeam.name}</div>
+                <div class="upcoming-card__team">${awayFlag} ${escapeHTML(m.awayTeam?.name || 'Away')}</div>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div class="upcoming-card__time">${dateStr} · ${timeStr}</div>
@@ -40,7 +44,7 @@ export const homePageMethods = {
               </div>
             </div>
           `;
-        }).join('');
+        }).join(''));
       } else {
         this._renderFallbackUpcoming(container);
       }
@@ -57,7 +61,7 @@ export const homePageMethods = {
       { league: 'FIFA World Cup 2026', home: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 England', away: '🇳🇱 Netherlands', time: '13 JUL · 08:00 PM', status: 'soon' },
     ];
 
-    container.innerHTML = matches.map(m => `
+    setHTML(container, matches.map(m => `
       <div class="upcoming-card motion-fade-in">
         <div class="upcoming-card__league">${m.league}</div>
         <div class="upcoming-card__teams">
@@ -70,7 +74,7 @@ export const homePageMethods = {
           ${m.status ? `<div class="upcoming-card__status upcoming-card__status--${m.status}">${m.status === 'live' ? '● LIVE' : '● SOON'}</div>` : ''}
         </div>
       </div>
-    `).join('');
+    `).join(''));
   },
 
   _renderNews() {
@@ -94,17 +98,17 @@ export const homePageMethods = {
       },
     ];
 
-    container.innerHTML = news.map(n => `
+    setHTML(container, news.map(n => `
       <div class="news-card motion-fade-in">
-        <img class="news-card__img" src="${n.img}" alt="${n.title}" loading="lazy" />
+        <img class="news-card__img" src="${escapeHTML(n.img)}" alt="${escapeHTML(n.title)}" loading="lazy" />
         <div class="news-card__body">
-          <div class="card__tag">${n.tag}</div>
-          <h3 class="news-card__title">${n.title}</h3>
-          <p class="news-card__desc">${n.desc}</p>
-          <div class="card__meta"><span>${n.time}</span></div>
+          <div class="card__tag">${escapeHTML(n.tag)}</div>
+          <h3 class="news-card__title">${escapeHTML(n.title)}</h3>
+          <p class="news-card__desc">${escapeHTML(n.desc)}</p>
+          <div class="card__meta"><span>${escapeHTML(n.time)}</span></div>
         </div>
       </div>
-    `).join('');
+    `).join(''));
   },
 
   _renderBlogPosts() {
@@ -162,20 +166,20 @@ export const homePageMethods = {
       },
     ];
 
-    container.innerHTML = blogs.map(b => `
+    setHTML(container, blogs.map(b => `
       <div class="blog-card motion-fade-in">
-        <img class="blog-card__img" src="${b.img}" alt="${b.title}" loading="lazy" />
+        <img class="blog-card__img" src="${escapeHTML(b.img)}" alt="${escapeHTML(b.title)}" loading="lazy" />
         <div class="blog-card__body">
-          <div class="blog-card__tag">${b.tag}</div>
-          <h3 class="blog-card__title">${b.title}</h3>
-          <p class="blog-card__desc">${b.desc}</p>
+          <div class="blog-card__tag">${escapeHTML(b.tag)}</div>
+          <h3 class="blog-card__title">${escapeHTML(b.title)}</h3>
+          <p class="blog-card__desc">${escapeHTML(b.desc)}</p>
           <div class="blog-card__footer">
-            <span class="blog-card__author">${b.author}</span>
-            <span class="blog-card__time">${b.time}</span>
+            <span class="blog-card__author">${escapeHTML(b.author)}</span>
+            <span class="blog-card__time">${escapeHTML(b.time)}</span>
           </div>
         </div>
       </div>
-    `).join('');
+    `).join(''));
   },
 
   async _loadSpotlightFromAPI() {
@@ -193,7 +197,9 @@ export const homePageMethods = {
         match = data?.featured;
         isLive = match?.status?.isLive || false;
       }
-    } catch { /* API offline */ }
+    } catch (error) {
+      console.warn('Live match spotlight unavailable; using fallback countdown.', error);
+    }
 
     if (match && !match.status.isFinished) {
       // Real upcoming or live match from ESPN
@@ -231,7 +237,9 @@ export const homePageMethods = {
               el.textContent = `FT: ${m.homeTeam.score} — ${m.awayTeam.score}`;
               this._clearManagedInterval('spotlightCountdown');
             }
-          } catch {}
+          } catch (error) {
+            console.warn('Live spotlight refresh failed.', error);
+          }
         }, 15000);
       } else {
         // Countdown to real upcoming match
@@ -305,6 +313,4 @@ export const homePageMethods = {
     };
     if (update()) this._startManagedInterval('spotlightCountdown', update, SECOND_MS);
   }
-
-  // ─── LIVE MATCH PAGE ────────────────────────────────────
 };

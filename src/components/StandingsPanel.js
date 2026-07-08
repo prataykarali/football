@@ -2,6 +2,8 @@
  * Standings Panel Component
  * Displays points table (league table) and key player stats.
  */
+import { setHTML } from '../utils/dom.js';
+
 export class StandingsPanel {
   constructor(containerEl) {
     this.containerEl = containerEl;
@@ -10,7 +12,7 @@ export class StandingsPanel {
   render() {
     if (!this.containerEl) return;
 
-    this.containerEl.innerHTML = `
+    setHTML(this.containerEl, `
       <div class="standings-panel animate-fade-in">
         <h3 class="panel-subtitle">League Standings</h3>
         <div class="table-container">
@@ -80,7 +82,7 @@ export class StandingsPanel {
             <div class="stat-player">
               <span class="stat-rank">2</span>
               <div>
-                <div class="stat-name">Karim Benzema</div>
+                <div class="stat-name">Vinicius Junior</div>
                 <div class="stat-club">Real Madrid</div>
               </div>
             </div>
@@ -98,6 +100,6 @@ export class StandingsPanel {
           </div>
         </div>
       </div>
-    `;
+    `);
   }
 }

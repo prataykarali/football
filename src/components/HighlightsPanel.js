@@ -1,6 +1,7 @@
 /**
  * Highlights Panel — shows key match moments with video thumbnails
  */
+import { escapeHTML, setHTML } from '../utils/dom.js';
 import { IMAGE_BASE, resolveVideo, VIDEO_BASE } from '../utils/media.js';
 
 export class HighlightsPanel {
@@ -34,31 +35,39 @@ export class HighlightsPanel {
       substitution: `${IMAGE_BASE}/stadium-aerial.jpg`,
     };
 
-    this.containerEl.innerHTML = `
+    setHTML(this.containerEl, `
       <div class="highlights-panel" role="list" aria-label="Match highlights">
         <div style="margin-bottom: var(--space-sm); font-size: 0.8rem; color: var(--text-muted);">
           ${keyEvents.length} key moments — tap to replay with AI commentary
         </div>
-        ${keyEvents.map(ev => `
-          <div class="highlight-card highlight-card--${ev.type}" role="listitem" tabindex="0" data-event-id="${ev.id}" aria-label="${ev.minute} minute: ${ev.details}">
+        ${keyEvents.map(ev => {
+          const type = this._safeEventType(ev.type);
+          const id = Number.isFinite(Number(ev.id)) ? Number(ev.id) : '';
+          const minute = escapeHTML(ev.minute ?? '');
+          const details = escapeHTML(ev.details || 'Match highlight');
+          const player = escapeHTML(ev.player || '');
+          const team = escapeHTML(ev.team || '');
+          return `
+          <div class="highlight-card highlight-card--${type}" role="listitem" tabindex="0" data-event-id="${id}" aria-label="${minute} minute: ${details}">
             <div class="highlight-card__thumb">
               <video class="highlight-video-thumb" muted loop preload="none" playsinline aria-hidden="true"
-                data-src="${videoThumbs[ev.type] || `${VIDEO_BASE}/match-action.mp4`}"
-                poster="${imageThumbs[ev.type] || `${IMAGE_BASE}/pitch-green.jpg`}">
+                data-src="${escapeHTML(videoThumbs[type] || `${VIDEO_BASE}/match-action.mp4`)}"
+                poster="${escapeHTML(imageThumbs[type] || `${IMAGE_BASE}/pitch-green.jpg`)}">
               </video>
             </div>
             <div class="highlight-card__body">
-              <div class="highlight-card__time">${ev.minute}'</div>
+              <div class="highlight-card__time">${minute}'</div>
               <div class="highlight-card__content">
-                <div class="highlight-card__type">${this._typeLabel(ev.type)}</div>
-                <div class="highlight-card__desc">${ev.details}</div>
-                ${ev.player ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${ev.player} · ${ev.team}</div>` : ''}
+                <div class="highlight-card__type">${this._typeLabel(type)}</div>
+                <div class="highlight-card__desc">${details}</div>
+                ${player ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${player} · ${team}</div>` : ''}
               </div>
             </div>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
-    `;
+    `);
 
     // Hover to play video preview
     this.containerEl.querySelectorAll('.highlight-card').forEach(card => {
@@ -111,5 +120,26 @@ export class HighlightsPanel {
       possession: '📊 Possession',
     };
     return labels[type] || type;
+  }
+
+  _safeEventType(type = '') {
+    const safe = String(type).toLowerCase().replace(/[^a-z_]/g, '');
+    const allowed = [
+      'goal',
+      'penalty_awarded',
+      'red_card',
+      'yellow_card',
+      'shot',
+      'substitution',
+      'foul',
+      'corner',
+      'half_time',
+      'extra_time',
+      'penalty_shootout',
+      'kickoff',
+      'second_half',
+      'possession',
+    ];
+    return allowed.includes(safe) ? safe : 'possession';
   }
 }

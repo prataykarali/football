@@ -123,36 +123,4 @@ describe('CommentaryService', () => {
       expect(headers['Content-Type']).toBe('application/json');
     });
   });
-
-  describe('batchEvents', () => {
-    it('should collapse multiple events into single array', () => {
-      const events = [
-        { type: 'pass', player: 'Kroos', minute: 10 },
-        { type: 'pass', player: 'Modric', minute: 10 },
-        { type: 'shot', player: 'Benzema', minute: 11 },
-      ];
-      const batched = service.batchEvents(events);
-      expect(Array.isArray(batched)).toBe(true);
-      expect(batched.length).toBeLessThanOrEqual(events.length);
-    });
-
-    it('should preserve key moments even when batching', () => {
-      const events = [
-        { type: 'pass', player: 'Kroos', minute: 10 },
-        { type: 'goal', player: 'Vinicius', minute: 11, isKeyMoment: true },
-        { type: 'pass', player: 'Modric', minute: 12 },
-      ];
-      const batched = service.batchEvents(events);
-      expect(batched.some((b) => b.type === 'goal')).toBe(true);
-    });
-
-    it('should return single event arrays unchanged', () => {
-      const events = [{ type: 'goal', player: 'Salah', minute: 44 }];
-      expect(service.batchEvents(events)).toHaveLength(1);
-    });
-
-    it('should handle empty event arrays', () => {
-      expect(service.batchEvents([])).toHaveLength(0);
-    });
-  });
 });

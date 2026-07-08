@@ -1,5 +1,6 @@
 import { VenueMapService } from '../../services/venueMap.js';
 import { Toast } from '../../components/Toast.js';
+import { escapeHTML, setHTML } from '../../utils/dom.js';
 
 export const liveTravelMethods = {
   _initLiveTravelCard() {
@@ -63,12 +64,12 @@ export const liveTravelMethods = {
     const locationLabel = plan.hasUserLocation ? 'from your location' : 'demo route near the stadium';
     const recommended = plan.recommended;
 
-    status.innerHTML = `
+    setHTML(status, `
       <strong>${this._escapeHtml(plan.venue.name)}</strong><br>
       ${plan.distanceKm} km straight-line, about ${plan.routeDistanceKm} km by route (${locationLabel}).
-    `;
+    `);
 
-    optionsEl.innerHTML = `
+    setHTML(optionsEl, `
       <div class="live-travel-summary">
         <div>
           <span class="live-travel-summary__label">Best option</span>
@@ -80,22 +81,40 @@ export const liveTravelMethods = {
         Best entry: <strong>${this._escapeHtml(plan.bestGate?.name || 'lowest wait accessible gate')}</strong>
       </div>
       <div class="live-travel-option-list">
-        ${plan.alternatives.map(option => `
-          <div class="live-travel-option">
-            <div class="live-travel-option__top">
-              <strong>${this._escapeHtml(option.label)}</strong>
-              <span>${this._formatTravelEta(option.etaMinutes)}</span>
+        ${plan.alternatives.map(option => {
+          const getTravelModeFromLabel = (label) => {
+            const l = String(label).toLowerCase();
+            if (l.includes('rail') || l.includes('transit') || l.includes('train') || l.includes('metro')) return 'transit';
+            if (l.includes('bus') || l.includes('shuttle')) return 'bus';
+            if (l.includes('uber') || l.includes('lyft') || l.includes('rideshare') || l.includes('taxi')) return 'rideshare';
+            return 'driving';
+          };
+          const modeKey = getTravelModeFromLabel(option.label);
+          const dist = Number(option.distanceKm || plan.routeDistanceKm || 0);
+          const co2Kg = this.sustainabilityService
+            ? this.sustainabilityService.calculateEmissions(dist, modeKey).co2Kg
+            : (dist * 0.1).toFixed(2);
+          const isGreen = ['transit', 'bus'].includes(modeKey);
+          const co2Display = `<span style="color:${isGreen ? 'var(--accent-green)' : 'var(--text-muted)'}; font-weight:600;">${isGreen ? '🍃 ' : ''}${co2Kg} kg CO2</span>`;
+
+          return `
+            <div class="live-travel-option">
+              <div class="live-travel-option__top">
+                <strong>${this._escapeHtml(option.label)}</strong>
+                <span>${this._formatTravelEta(option.etaMinutes)}</span>
+              </div>
+              <div class="live-travel-option__meta">
+                <span>${this._escapeHtml(option.badge)}</span>
+                <span>${option.distanceKm} km</span>
+                <span>${this._escapeHtml(option.cost)}</span>
+                <span>${co2Display}</span>
+              </div>
+              <p>${this._escapeHtml(option.reason)}</p>
             </div>
-            <div class="live-travel-option__meta">
-              <span>${this._escapeHtml(option.badge)}</span>
-              <span>${option.distanceKm} km</span>
-              <span>${this._escapeHtml(option.cost)}</span>
-            </div>
-            <p>${this._escapeHtml(option.reason)}</p>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
-    `;
+    `);
   },
 
   _formatTravelEta(minutes) {
@@ -106,11 +125,6 @@ export const liveTravelMethods = {
   },
 
   _escapeHtml(value = '') {
-    return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+    return escapeHTML(value);
   }
 };
