@@ -37,6 +37,16 @@ describe('SustainabilityService', () => {
     expect(saving).toBe(2.3);
   });
 
+  it('normalizes venue travel modes when calculating sustainability impact', () => {
+    const service = new SustainabilityService();
+    const impact = service.getTransportImpact(10, 'park-walk');
+
+    expect(impact.mode).toBe('driving');
+    expect(impact.label).toBe('Personal Car');
+    expect(impact.co2Kg).toBe(2.7);
+    expect(impact.savingKg).toBe(0);
+  });
+
   it('completes actions and increases points', () => {
     const service = new SustainabilityService();
     expect(service.getPoints()).toBe(0);

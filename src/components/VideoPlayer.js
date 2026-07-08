@@ -3,7 +3,7 @@
  * Supports overlay for Player ID, picture-in-picture, and keyboard shortcuts.
  */
 import { escapeHTML, setHTML } from '../utils/dom.js';
-import { IMAGE_BASE, resolveVideo, VIDEO_BASE } from '../utils/media.js';
+import { resolveImage, resolveVideo, VIDEO_BASE } from '../utils/media.js';
 
 export class VideoPlayer {
   constructor(containerEl) {
@@ -110,7 +110,7 @@ export class VideoPlayer {
             playsinline
             preload="metadata"
             aria-label="Match footage"
-            poster="${escapeHTML(`${IMAGE_BASE}/stage3.jpeg`)}"
+            poster="${escapeHTML(resolveImage('metlife'))}"
           >
             <source src="${escapeHTML(safeSrc)}" type="video/mp4" />
             Your browser does not support video.
@@ -168,7 +168,7 @@ export class VideoPlayer {
           if (!fallback) {
             fallback = document.createElement('div');
             fallback.className = 'video-fallback';
-            fallback.style.cssText = `position:absolute;inset:0;background:url(${IMAGE_BASE}/stage3.jpeg) center/cover;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;`;
+            fallback.style.cssText = `position:absolute;inset:0;background:url(${resolveImage('metlife')}) center/cover;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;`;
             setHTML(fallback, '<div style="background:rgba(0,0,0,0.7);padding:16px 24px;border-radius:12px;font-family:var(--font-heading);font-size:1.2rem;color:#fff;">⚽ LIVE MATCH FEED</div><div style="color:var(--text-muted);font-size:0.8rem;">Stream connecting...</div>');
             this.videoEl.parentElement.appendChild(fallback);
           }

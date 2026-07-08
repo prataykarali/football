@@ -53,6 +53,195 @@
   color: var(--text-secondary); margin: 0 var(--space-lg) var(--space-lg);
 }
 
+/* ─── Staff Command Center ───────────────────────────────── */
+.staff-command {
+  background: var(--bg-glass);
+  border: 2px solid var(--accent-green);
+}
+
+.staff-command__header,
+.staff-command__tabs,
+.staff-command__incident,
+.staff-command__translation-card {
+  display: flex;
+  align-items: center;
+}
+
+.staff-command__header {
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.staff-command__title {
+  margin: 0;
+  color: var(--accent-green);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.staff-command__badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 220, 120, 0.15);
+  color: var(--accent-green);
+  font-size: 0.65rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.staff-command__tabs {
+  gap: 10px;
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.staff-command__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: var(--space-md);
+}
+
+.staff-command__metric,
+.staff-command__module,
+.staff-command__translation-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.staff-command__metric,
+.staff-command__module {
+  padding: 12px;
+}
+
+.staff-command__metric-label,
+.staff-command__label,
+.staff-command__incident-time {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.staff-command__metric-value {
+  color: var(--accent-green);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.staff-command__metric-value--warning {
+  color: var(--accent-amber);
+}
+
+.staff-command__module {
+  margin-bottom: var(--space-md);
+}
+
+.staff-command__module:last-child {
+  margin-bottom: 0;
+}
+
+.staff-command__module--ai {
+  border-color: var(--accent-blue);
+}
+
+.staff-command__module-title {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.staff-command__module--ai .staff-command__module-title {
+  color: var(--accent-blue);
+}
+
+.staff-command__advice {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.staff-command__full-action {
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  font-size: 0.72rem;
+}
+
+.staff-command__incident-list,
+.staff-command__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.staff-command__incident {
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.14);
+  font-size: 0.75rem;
+}
+
+.staff-command__incident-location {
+  color: var(--text-secondary);
+}
+
+.staff-command__resolve {
+  padding: 3px 8px;
+  font-size: 0.65rem;
+}
+
+.staff-command__resolved {
+  color: var(--accent-green);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.staff-command__label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.staff-command__select {
+  font-size: 0.75rem;
+}
+
+.staff-command__translation-card {
+  position: relative;
+  min-height: 42px;
+  padding: 10px 42px 10px 10px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.staff-command__translation {
+  line-height: 1.4;
+}
+
+.staff-command__speak {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+@media (max-width: 520px) {
+  .staff-command__header,
+  .staff-command__tabs,
+  .staff-command__metrics {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .staff-command__header,
+  .staff-command__tabs {
+    flex-direction: column;
+  }
+}
+
 /* ─── AI Vision Read ──────────────────────────────────────── */
 .vision-read__eyebrow {
   font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;

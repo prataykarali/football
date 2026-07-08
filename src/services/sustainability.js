@@ -24,6 +24,18 @@ export class SustainabilityService {
     { id: 'plant-meals', label: 'Chose plant-based dining concession', points: 15, icon: '🥗' }
   ];
 
+  static MODE_ALIASES = {
+    transit: 'transit',
+    bus: 'bus',
+    rail: 'transit',
+    'fly-transit': 'transit',
+    rideshare: 'rideshare',
+    driving: 'driving',
+    drive: 'driving',
+    'park-walk': 'driving',
+    walk: 'transit',
+  };
+
   loadState() {
     try {
       const data = LocalDatabase.read();
@@ -49,12 +61,13 @@ export class SustainabilityService {
   }
 
   calculateEmissions(distanceKm, mode) {
-    const travelMode = SustainabilityService.TRAVEL_MODES[mode];
+    const modeKey = SustainabilityService.MODE_ALIASES[mode] || mode;
+    const travelMode = SustainabilityService.TRAVEL_MODES[modeKey];
     if (!travelMode) return { co2Kg: 0, points: 0 };
     
     const co2Kg = Number((distanceKm * travelMode.co2PerKm).toFixed(2));
     const points = travelMode.points;
-    return { co2Kg, points };
+    return { co2Kg, points, mode: modeKey, label: travelMode.label };
   }
 
   getCarbonSaving(distanceKm, modeChosen) {
@@ -63,6 +76,14 @@ export class SustainabilityService {
     const current = this.calculateEmissions(distanceKm, modeChosen).co2Kg;
     const saving = Number(Math.max(0, baseline - current).toFixed(2));
     return saving;
+  }
+
+  getTransportImpact(distanceKm, modeChosen) {
+    const impact = this.calculateEmissions(distanceKm, modeChosen);
+    return {
+      ...impact,
+      savingKg: this.getCarbonSaving(distanceKm, modeChosen),
+    };
   }
 
   completeAction(actionId) {

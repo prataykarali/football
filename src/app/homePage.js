@@ -1,6 +1,6 @@
 import { NEXT_MATCH } from '../data/sampleMatch.js';
 import { HOUR_MS, SECOND_MS } from './constants.js';
-import { IMAGE_BASE } from '../utils/media.js';
+import { resolveImage } from '../utils/media.js';
 import { escapeHTML, setHTML } from '../utils/dom.js';
 
 export const homePageMethods = {
@@ -83,14 +83,14 @@ export const homePageMethods = {
 
     const news = [
       {
-        img: `${IMAGE_BASE}/stage5.jpeg`,
+        img: resolveImage('azteca'),
         tag: 'Champions League',
         title: 'Champions League Final: Tactical Storylines to Watch',
         desc: 'Key player battles, late-game momentum swings, and the tactical details that can decide the biggest night in club football.',
         time: '2 hours ago',
       },
       {
-        img: `${IMAGE_BASE}/ball4.jpeg`,
+        img: resolveImage('sofi'),
         tag: 'Technology',
         title: 'How AI Match Tools Help Fans Read the Game Faster',
         desc: 'From player recognition to quick context cards, football tech is becoming a second screen for fans watching from anywhere.',
@@ -109,6 +109,7 @@ export const homePageMethods = {
         </div>
       </div>
     `).join(''));
+    this._bindImageFallbacks(container);
   },
 
   _renderBlogPosts() {
@@ -117,7 +118,7 @@ export const homePageMethods = {
 
     const blogs = [
       {
-        img: `${IMAGE_BASE}/stage3.jpeg`,
+        img: resolveImage('bcPlace'),
         tag: 'Tactical Analysis',
         title: 'How the 3-2-5 is Reshaping World Cup Football',
         desc: 'From Pep Guardiola\'s influence to the new breed of wing-backs, the 3-2-5 formation is taking the 2026 World Cup by storm.',
@@ -125,7 +126,7 @@ export const homePageMethods = {
         author: 'VANTAGE Analyst',
       },
       {
-        img: `${IMAGE_BASE}/ball3.jpeg`,
+        img: resolveImage('sofi'),
         tag: 'Player Spotlight',
         title: 'Lamine Yamal: The Teenager Carrying Spain\'s Hopes',
         desc: 'At just 18, Yamal has become the most dangerous attacker in the tournament. A deep dive into his numbers and playing style.',
@@ -133,7 +134,7 @@ export const homePageMethods = {
         author: 'Scout Report',
       },
       {
-        img: `${IMAGE_BASE}/stage5.jpeg`,
+        img: resolveImage('metlife'),
         tag: 'Fan Culture',
         title: 'The Kolkata Fan Story: Watching Football at 2AM',
         desc: 'For millions of fans in South Asia, the World Cup means sleepless nights, crowded tea stalls, and raw emotion at dawn.',
@@ -141,7 +142,7 @@ export const homePageMethods = {
         author: 'VANTAGE Story',
       },
       {
-        img: `${IMAGE_BASE}/ball4.jpeg`,
+        img: resolveImage('azteca'),
         tag: 'Data Deep Dive',
         title: 'Expected Goals vs Reality: WC 2026 xG Report',
         desc: 'Which teams are overperforming? Who\'s getting unlucky? A statistical breakdown of every group stage match.',
@@ -149,7 +150,7 @@ export const homePageMethods = {
         author: 'Data Lab',
       },
       {
-        img: `${IMAGE_BASE}/stage3.jpeg`,
+        img: resolveImage('metlife'),
         tag: 'Stadium Guide',
         title: 'Inside MetLife: Where the 2026 Final Will Be Decided',
         desc: 'Capacity, transport, gate access, and what to expect when 82,500 fans pack into New Jersey for the biggest match in football.',
@@ -157,7 +158,7 @@ export const homePageMethods = {
         author: 'VANTAGE Venue',
       },
       {
-        img: `${IMAGE_BASE}/ball3.jpeg`,
+        img: resolveImage('bcPlace'),
         tag: 'History',
         title: 'Every World Cup Final Goal: A Visual Timeline',
         desc: 'From Geoff Hurst in 1966 to Messi in 2022 — every decisive goal in World Cup final history, mapped minute by minute.',
@@ -180,6 +181,15 @@ export const homePageMethods = {
         </div>
       </div>
     `).join(''));
+    this._bindImageFallbacks(container);
+  },
+
+  _bindImageFallbacks(container) {
+    container.querySelectorAll('img').forEach((img) => {
+      img.addEventListener('error', () => {
+        img.src = resolveImage('metlife');
+      }, { once: true });
+    });
   },
 
   async _loadSpotlightFromAPI() {

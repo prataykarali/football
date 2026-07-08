@@ -65,7 +65,6 @@ export class App {
       this._animateHero();
 
       window.addEventListener('hashchange', () => this._handleRoute());
-      console.log('[VANTAGE] Ready');
     } catch (error) {
       console.error('[VANTAGE] Init failed:', error);
     }

@@ -9,8 +9,14 @@ export const MEDIA_BASE = 'https://github.com/prataykarali/vantage-football/rele
 export const VIDEO_BASE = MEDIA_BASE;
 export const IMAGE_BASE = MEDIA_BASE;
 
+export const IMAGE_ASSETS = {
+  metlife: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800&auto=format&fit=crop',
+  sofi: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=800&auto=format&fit=crop',
+  azteca: 'https://images.unsplash.com/photo-1504150559411-a4778a0d4112?q=80&w=800&auto=format&fit=crop',
+  bcPlace: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=800&auto=format&fit=crop',
+};
+
 const VIDEO_PATH_RE = /^\/videos\/([-\w.]+\.mp4)$/i;
-const IMAGE_PATH_RE = /^\/images\/([-\w.]+\.(?:jpe?g|png|webp|avif|gif))$/i;
 
 /**
  * Map a known video asset path to its release URL.
@@ -28,4 +34,6 @@ export function resolveVideo(path) {
   return `${VIDEO_BASE}/${file}`;
 }
 
-
+export function resolveImage(key) {
+  return IMAGE_ASSETS[key] || IMAGE_ASSETS.metlife;
+}
