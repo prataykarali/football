@@ -21,62 +21,50 @@ export class PlayerCard {
     this.containerEl.querySelector('.player-card__close')?.addEventListener('click', () => this.hide());
   }
 
-  show(playerData) {
+  show(sceneData) {
     if (!this.containerEl) return;
     const contentEl = this.containerEl.querySelector('#player-card-content');
     if (!contentEl) return;
 
-    const safePlayer = escapeHTML(playerData.player || 'Unknown player');
-    const safePosition = escapeHTML(playerData.position || 'Position unknown');
-    const safeNationality = escapeHTML(playerData.nationality || 'Nationality unknown');
-    const safeFlag = escapeHTML(playerData.nationalityFlag || '🌐');
-    const safeFunFact = escapeHTML(playerData.funFact || 'No extra context available for this frame.');
-    const safeStats = {
-      goals: this._safeStat(playerData.stats?.goals),
-      assists: this._safeStat(playerData.stats?.assists),
-      passes: this._safeStat(playerData.stats?.passes),
-    };
-    const safeConfidence = Number.isFinite(Number(playerData.confidence)) ? Number(playerData.confidence) : 0;
-    const isUncertain = Boolean(playerData.isUncertain) || safeConfidence < 0.7;
+    const safeHome = escapeHTML(sceneData.homeTeam || 'Unknown');
+    const safeAway = escapeHTML(sceneData.awayTeam || 'Unknown');
+    const safeScore = escapeHTML(sceneData.score || 'unknown');
+    const safeMinute = escapeHTML(sceneData.minute || 'unknown');
+    const safeInFocus = escapeHTML(sceneData.inFocus || 'Player in focus');
+    const safePhase = escapeHTML(sceneData.phase || 'open play');
+    const safeFunFact = escapeHTML(sceneData.funFact || 'No extra context available for this frame.');
+
+    // A named player is only shown when Gemini could legibly identify one.
+    const named = sceneData.player && sceneData.player !== 'Unknown'
+      ? escapeHTML(sceneData.player) : null;
+
+    const safeConfidence = Number.isFinite(Number(sceneData.confidence)) ? Number(sceneData.confidence) : 0;
+    const notConfigured = sceneData.source === 'not-configured';
+    const isUncertain = Boolean(sceneData.isUncertain) || safeConfidence < 0.7;
     const confClass = isUncertain ? 'confidence-tag--low' : 'confidence-tag--high';
-    const confLabel = isUncertain
-      ? `Uncertain (${Math.round(safeConfidence * 100)}%) — Nearest match context`
-      : `High Confidence (${Math.round(safeConfidence * 100)}%)`;
-
-    const playerImages = {
-      'Lionel Messi': '/images/messi-like.jpg',
-      'Kylian Mbappé': '/images/mbappe-like.jpg',
-      'Ángel Di María': '/images/match-action.jpg',
-    };
-
-    const imgSrc = playerImages[playerData.player] || '/images/football-icon.jpg';
+    const confLabel = notConfigured
+      ? 'AI vision unavailable'
+      : `${isUncertain ? 'Reading' : 'Clear read'} · ${Math.round(safeConfidence * 100)}% confidence`;
 
     contentEl.innerHTML = `
-      <div class="player-card__photo">
-        <img src="${imgSrc}" alt="${safePlayer}" class="player-card__img" loading="lazy" />
-      </div>
       <div class="player-card__header">
-        <div class="player-card__flag">${safeFlag}</div>
-        <h3 class="player-card__name">${safePlayer}</h3>
-        <p class="player-card__position">${safePosition} · ${safeNationality}</p>
+        <div class="vision-read__eyebrow">🔍 AI Vision Read</div>
+        <h3 class="player-card__name">${safeHome} <span class="vision-read__score">${safeScore}</span> ${safeAway}</h3>
+        <p class="player-card__position">Match clock · ${safeMinute}</p>
         <span class="confidence-tag ${confClass}">${escapeHTML(confLabel)}</span>
       </div>
-      <div class="player-card__stats">
-        <div>
-          <div class="stat-val">${safeStats.goals}</div>
-          <div class="stat-lbl">Goals</div>
+      <div class="vision-read__rows">
+        <div class="vision-read__row">
+          <span class="vision-read__key">In focus</span>
+          <span class="vision-read__val">${named ? `<strong>${named}</strong> — ` : ''}${safeInFocus}</span>
         </div>
-        <div>
-          <div class="stat-val">${safeStats.assists}</div>
-          <div class="stat-lbl">Assists</div>
-        </div>
-        <div>
-          <div class="stat-val">${safeStats.passes}</div>
-          <div class="stat-lbl">Passes</div>
+        <div class="vision-read__row">
+          <span class="vision-read__key">Phase</span>
+          <span class="vision-read__val">${safePhase}</span>
         </div>
       </div>
       <div class="player-card__fun-fact">
-        <strong>Context:</strong> ${safeFunFact}
+        <strong>What Gemini sees:</strong> ${safeFunFact}
       </div>
     `;
 

@@ -87,15 +87,22 @@ export class PlayerCardService {
       const data = await response.json();
       const conf = data.confidence ?? 0.5;
 
+      // Scene-read result: what Gemini actually sees in the frame (teams read from
+      // the on-screen scoreboard, phase of play, the player in focus). Legacy
+      // player/stats fields are preserved so older callers/tests keep working.
       return {
+        homeTeam: data.homeTeam || 'Unknown',
+        awayTeam: data.awayTeam || 'Unknown',
+        score: data.score || 'unknown',
+        minute: data.minute || 'unknown',
+        inFocus: data.inFocus || 'Player in focus',
+        phase: data.phase || 'open play',
         player: data.player || 'Unknown',
         confidence: conf,
         isUncertain: conf < 0.7,
-        position: data.position || 'Unknown',
-        nationality: data.nationality || 'Unknown',
-        nationalityFlag: data.nationalityFlag || '🌐',
         stats: data.stats || { goals: 1, assists: 0, passes: 30 },
-        funFact: data.funFact || 'The frame was scanned, but the player identity is not confident enough to claim.'
+        funFact: data.funFact || 'The frame was scanned but details were not fully legible.',
+        source: data.source || 'gemini-vision'
       };
     } catch (err) {
       return { error: err.message || 'Network error' };
