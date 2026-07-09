@@ -49,6 +49,7 @@ export const coreMethods = {
 
     this.currentPage = pageId;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('main-content')?.focus?.({ preventScroll: true });
 
     this._initPageContent(pageId);
   },
@@ -94,12 +95,6 @@ export const coreMethods = {
         hamburger.setAttribute('aria-expanded', isOpen.toString());
       };
       hamburger.addEventListener('click', toggleMenu);
-      hamburger.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleMenu();
-        }
-      });
       links.querySelectorAll('.site-nav__link').forEach(link => {
         link.addEventListener('click', () => {
           links.classList.remove('open');
@@ -122,30 +117,36 @@ export const coreMethods = {
     const switcher = document.getElementById('theme-switcher');
     if (!switcher) return;
 
-    const savedTheme = typeof localStorage === 'undefined'
+    const savedTheme = this._normalizeTheme(typeof localStorage === 'undefined'
       ? 'neon'
-      : localStorage.getItem('vantage_theme') || 'neon';
+      : localStorage.getItem('vantage_theme') || 'neon');
     this._applyTheme(savedTheme);
 
     const dots = switcher.querySelectorAll('.theme-dot');
+    const applySelection = (dot, { focus = false } = {}) => {
+      const theme = dot.dataset.theme;
+      this._applyTheme(theme);
+      dots.forEach(d => {
+        const isActive = d === dot;
+        d.classList.toggle('theme-dot--active', isActive);
+        d.setAttribute('aria-checked', isActive.toString());
+        d.tabIndex = isActive ? 0 : -1;
+      });
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('vantage_theme', theme);
+      }
+      if (focus) dot.focus?.();
+      Toast.show({ message: `Theme: ${theme}`, type: 'info', duration: 2000 });
+    };
+
     dots.forEach(dot => {
       const isCurrent = dot.dataset.theme === savedTheme;
       dot.classList.toggle('theme-dot--active', isCurrent);
       dot.setAttribute('aria-checked', isCurrent.toString());
+      dot.tabIndex = isCurrent ? 0 : -1;
 
       const activateTheme = () => {
-        const theme = dot.dataset.theme;
-        this._applyTheme(theme);
-        dots.forEach(d => {
-          d.classList.remove('theme-dot--active');
-          d.setAttribute('aria-checked', 'false');
-        });
-        dot.classList.add('theme-dot--active');
-        dot.setAttribute('aria-checked', 'true');
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem('vantage_theme', theme);
-        }
-        Toast.show({ message: `Theme: ${theme}`, type: 'info', duration: 2000 });
+        applySelection(dot);
       };
 
       dot.addEventListener('click', activateTheme);
@@ -153,18 +154,45 @@ export const coreMethods = {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           activateTheme();
+        } else if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+          e.preventDefault();
+          const currentIndex = [...dots].indexOf(dot);
+          let nextIndex = currentIndex;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextIndex = (currentIndex + 1) % dots.length;
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nextIndex = (currentIndex - 1 + dots.length) % dots.length;
+          if (e.key === 'Home') nextIndex = 0;
+          if (e.key === 'End') nextIndex = dots.length - 1;
+          applySelection(dots[nextIndex], { focus: true });
         }
       });
     });
   },
 
+  _normalizeTheme(theme = 'neon') {
+    const allowedThemes = ['neon', 'cyber', 'nightowl', 'rose', 'purple', 'light'];
+    return allowedThemes.includes(theme) ? theme : 'neon';
+  },
+
   _applyTheme(theme) {
+    const safeTheme = this._normalizeTheme(theme);
     document.body.classList.forEach(cls => {
       if (cls.startsWith('theme-')) document.body.classList.remove(cls);
     });
-    if (theme !== 'neon') {
-      document.body.classList.add(`theme-${theme}`);
+    if (safeTheme !== 'neon') {
+      document.body.classList.add(`theme-${safeTheme}`);
     }
+    this._syncThemeSwitcher(safeTheme);
+    return safeTheme;
+  },
+
+  _syncThemeSwitcher(theme = 'neon') {
+    const safeTheme = this._normalizeTheme(theme);
+    document.querySelectorAll('#theme-switcher .theme-dot').forEach(dot => {
+      const isActive = dot.dataset.theme === safeTheme;
+      dot.classList.toggle('theme-dot--active', isActive);
+      dot.setAttribute('aria-checked', isActive.toString());
+      dot.tabIndex = isActive ? 0 : -1;
+    });
   },
 
   // ─── Settings Panel ────────────────────────────────────
@@ -182,6 +210,12 @@ export const coreMethods = {
       container.hidden = isOpen;
       btn.setAttribute('aria-expanded', (!isOpen).toString());
       if (!isOpen) container.focus?.();
+    });
+
+    container.addEventListener?.('vantage:settings-close', () => {
+      container.hidden = true;
+      btn?.setAttribute('aria-expanded', 'false');
+      btn?.focus?.();
     });
 
     // Apply the persisted settings once on boot so toggles stay in sync.
@@ -202,6 +236,12 @@ export const coreMethods = {
     body.classList.toggle('reduced-motion', Boolean(this.settings.visionImpaired));
     body.classList.toggle('high-contrast', Boolean(this.settings.visionImpaired));
     body.classList.toggle('hearing-impaired', Boolean(this.settings.hearingImpaired));
+    if (this.settings.theme) {
+      this.settings.theme = this._applyTheme(this.settings.theme);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('vantage_theme', this.settings.theme);
+      }
+    }
 
     setTTSEnabled(Boolean(this.settings.visionImpaired));
 
@@ -219,6 +259,12 @@ export const coreMethods = {
       staff?.setAttribute('aria-checked', Boolean(this.settings.staffMode).toString());
       const lang = panel.querySelector('#setting-lang');
       if (lang && this.settings.language) lang.value = this.settings.language;
+      const pace = panel.querySelector('#setting-pace');
+      if (pace && this.settings.pace) pace.value = this.settings.pace;
+      const register = panel.querySelector('#setting-register');
+      if (register && this.settings.register) register.value = this.settings.register;
+      const theme = panel.querySelector('#setting-theme');
+      if (theme && this.settings.theme) theme.value = this.settings.theme;
     }
 
     const staffContainer = document.getElementById('staff-command-container');
@@ -380,6 +426,7 @@ export const coreMethods = {
       nightOwl: false,
       notifications: true,
       playbackSpeed: 10,
+      theme: 'neon',
     };
   },
 

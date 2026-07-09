@@ -62,6 +62,17 @@ const indexHtml = readFileSync(indexPath, 'utf8');
 if (/\son[a-z]+\s*=/i.test(indexHtml)) {
   addFailure(indexPath, 'inline event handler attributes are not allowed');
 }
+if (/href=["']#["']/.test(indexHtml)) {
+  addFailure(indexPath, 'placeholder href="#" links are not allowed');
+}
+const skipTargetMatch = indexHtml.match(/<a\s+[^>]*href=["']#([^"']+)["'][^>]*class=["'][^"']*\bskip-link\b/i);
+if (skipTargetMatch && !new RegExp(`id=["']${skipTargetMatch[1]}["']`).test(indexHtml)) {
+  addFailure(indexPath, `skip link target #${skipTargetMatch[1]} is missing`);
+}
+const blankLinkPattern = /<a\b(?=[^>]*target=["']_blank["'])(?![^>]*rel=["'][^"']*\bnoopener\b)([^>]*)>/gi;
+if (blankLinkPattern.test(indexHtml)) {
+  addFailure(indexPath, 'target="_blank" links must include rel="noopener noreferrer"');
+}
 
 const configPath = join(root, 'backend/proxy_app/config.py');
 const configText = readFileSync(configPath, 'utf8');

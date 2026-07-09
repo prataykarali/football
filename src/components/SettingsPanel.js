@@ -14,7 +14,7 @@ export class SettingsPanel {
 
     setHTML(this.containerEl, `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
-        <h2 class="settings-title">Settings</h2>
+        <h2 id="settings-title" class="settings-title">Settings</h2>
         <button id="btn-close-settings" class="icon-btn" aria-label="Close settings" style="width:28px;height:28px;">×</button>
       </div>
 
@@ -115,12 +115,12 @@ export class SettingsPanel {
 
       <div class="toggle-row">
         <span class="toggle-label">Hearing-Impaired Mode</span>
-        <div id="toggle-hearing" class="toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Hearing-impaired mode"></div>
+        <button id="toggle-hearing" class="toggle" type="button" role="switch" aria-checked="false" aria-label="Hearing-impaired mode"></button>
       </div>
 
       <div class="toggle-row">
         <span class="toggle-label">Vision-Impaired (TTS)</span>
-        <div id="toggle-vision" class="toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Vision-impaired mode"></div>
+        <button id="toggle-vision" class="toggle" type="button" role="switch" aria-checked="false" aria-label="Vision-impaired mode"></button>
       </div>
 
       <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: var(--space-lg) 0;" />
@@ -129,12 +129,12 @@ export class SettingsPanel {
 
       <div class="toggle-row">
         <span class="toggle-label">Staff / Organizer Mode</span>
-        <div id="toggle-staff" class="toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Staff / Organizer Mode"></div>
+        <button id="toggle-staff" class="toggle" type="button" role="switch" aria-checked="false" aria-label="Staff / Organizer Mode"></button>
       </div>
     `);
 
     this.containerEl.querySelector('#btn-close-settings')?.addEventListener('click', () => {
-      this.containerEl.hidden = true;
+      this.containerEl.dispatchEvent(new Event('vantage:settings-close'));
     });
 
     // Toggle switches
@@ -148,7 +148,6 @@ export class SettingsPanel {
         this._emit();
       };
       el.addEventListener('click', handler);
-      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
     });
 
     // Select changes
